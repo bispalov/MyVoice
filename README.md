@@ -75,12 +75,12 @@
 | `manifest.json` | Маніфест PWA: назва, іконки, ярлики «Екстрена картка», «Писати», «Так / Ні» |
 | `icon-192.png`, `icon-512.png` | Іконки |
 | `lex/`, `tools/build-lexicon.py` | Частотні списки слів для підказок і скрипт, що їх готує |
-| `tests/` | Автотести Playwright (`test_v1.py`, `test_v2.py`, `test_sw.py`) |
+| `tests/` | Автотести Playwright (`test_v1.py`, `test_v2.py`, `test_v3.py`, `test_sw.py`) |
 | `LICENSE` | Ліцензія MIT |
 
 ### Оновлення версії
 
-1. `sw.js`: `const V = 'myvoice-v2'` → `'myvoice-v3'`.
+1. `sw.js`: `const V = 'myvoice-v3'` → `'myvoice-v4'`.
 2. `index.html`: `APP_VERSION` на те саме число.
 3. Завантажте файли — застосунок оновиться під час наступного відкриття з інтернетом.
 

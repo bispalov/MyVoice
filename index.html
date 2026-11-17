@@ -322,6 +322,13 @@ button.prs:not(.chip){transform:scale(.95);filter:brightness(1.25) saturate(1.15
 .edpic{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0}
 .edpic img{width:72px;height:72px;object-fit:cover;border-radius:12px;border:2px solid var(--border)}
 .edpic button{flex:1 1 0;min-width:min-content}
+/* «Потянуть вниз — перезагрузить» отключено (как в «Знову слова» v83): человек случайно тянет экран вниз от верхнего края,
+   Chrome перезагружает страницу, и теряется набранное. Жест срабатывает, только когда прокрутка «перетекает» в корень документа.
+   В установленном приложении (standalone) Chrome его и так не делает — правило для вкладки Chrome и встроенных браузеров.
+   Обычная прокрутка не меняется. */
+html,body{overscroll-behavior-y:none}
+/* Свои прокручиваемые области: дойдя до края, прокрутка не передаётся странице */
+#main,#ov,.modal,#tourBox,.hbuild,#quick,.tybox,.tymy,.ynbody,.cdscroll,.suscroll,textarea{overscroll-behavior:contain}
 /* ===================== «Мій голос»: шапка =====================
    Узкий экран: название строкой выше, ниже шесть кнопок 🏠 ⌨️ 🔤 🎤 ⚙️ ❓ (✏️ только на главном экране).
    Главный экран: 🏠 🎤 ⚙️ ❓ ✏️ в ряд, ниже крупные «⌨️ Писать» и «Азбука». */
@@ -633,7 +640,7 @@ body.dwell button,body.dwell a.call{position:relative}
 <div id="diary" class="modal"></div>
 
 <script>
-const APP_VERSION = 2;   // держите в соответствии с V = 'govorim-v70' в sw.js
+const APP_VERSION = 3;   // держите в соответствии с V = 'govorim-v70' в sw.js
 // Логин автора на GitHub: ссылки «Автор» и «Исходный код» в ⚙️ → «ℹ️ О приложении» (работают и в копиях на других сайтах).
 // Если оставить пустым, логин берётся из адреса <логин>.github.io.
 const APP_AUTHOR_GH = 'bispalov';

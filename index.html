@@ -640,7 +640,7 @@ body.dwell button,body.dwell a.call{position:relative}
 <div id="diary" class="modal"></div>
 
 <script>
-const APP_VERSION = 3;   // держите в соответствии с V = 'govorim-v70' в sw.js
+const APP_VERSION = 4;   // держите в соответствии с V = 'govorim-v70' в sw.js
 // Логин автора на GitHub: ссылки «Автор» и «Исходный код» в ⚙️ → «ℹ️ О приложении» (работают и в копиях на других сайтах).
 // Если оставить пустым, логин берётся из адреса <логин>.github.io.
 const APP_AUTHOR_GH = 'bispalov';
@@ -2756,6 +2756,7 @@ const LANGS=['uk','ru','en'];
 // Смена языка фраз и озвучки (⚙️ → «Основное» → «Язык фраз и озвучки»)
 function setLang(nl){
   if(!LANGS.includes(nl)||nl===lang)return;
+  draftSave();
   tourEnd();
   const wasEn=lang==='en';
   lang=nl;
@@ -2763,8 +2764,8 @@ function setLang(nl){
   document.documentElement.lang=lang;
   // английские фразы лёгких уровней строятся по английской грамматике и лежат в отдельном дереве
   if(isB()&&wasEn!==(lang==='en')){tree=ld(tk(),null)||getTreeForLevel();path=[];sel='';edCtx=''}
-  tyText='';tyUndo=null;tyModelC=null;
-  abcLine=[];abcUndo=null;                       // собранные строка «Азбуки» и рамка 🎤 относятся к прежнему языку
+  tyUndo=null;tyModelC=null;
+  abcLine=[];abcUndo=null;draftLoad();             // черновик нового языка; собранные строка «Азбуки» и рамка 🎤 относятся к прежнему языку
   if(abc){IDX=phraseIndex();abc=newAbc()}
   if(hearOn)IDX=phraseIndex();
   hearTxt='';hearAlt='';hearExt=undefined;hearBuild=[];hearSlot=-1;hearTyp=null;hearFn=false;hearOpen=false;hearMore=false;hearType=false;hearUndo=null;
@@ -2797,10 +2798,11 @@ function drawSettHeads(){
   const ab=$('#sett .sg[data-g="abc"]');if(ab)ab.hidden=$('#setSeg').value==='L1';   // «Азбуки» нет на тяжёлом уровне
   if(settOpen==='abc'&&ab&&ab.hidden)settOpen='main';
   document.querySelectorAll('#sett .sg').forEach(x=>{
-    const o=x.dataset.g===settOpen,b=x.querySelector('.sgh');
-    x.classList.toggle('open',o);b.textContent='';
+    const o=x.dataset.g===settOpen,b=x.querySelector('.sgh'),sm=o?'':settSum(x.dataset.g),sig=(o?1:0)+'|'+uh(b.dataset.t)+'|'+sm;
+    x.classList.toggle('open',o);
+    if(b.dataset.sig===sig)return;b.dataset.sig=sig;b.textContent='';
     const tt=h('span','sgt');tt.append(h('span',null,uh(b.dataset.t)));
-    if(!o)tt.append(h('span','sgs',settSum(x.dataset.g)));
+    if(!o)tt.append(h('span','sgs',sm));
     b.append(h('span','arr',o?'▼':'▶'),tt);b.setAttribute('aria-expanded',o?'true':'false');
   });
 }
@@ -2932,7 +2934,7 @@ $('#closeSettBtn').onclick = () => {
     path = [];sel = '';abc = null;hearOn = false;stopRec();
   }
 
-  settModal.style.display = 'none';
+  if(!settSaving)settModal.style.display = 'none';
   render();
 };
 
@@ -4822,7 +4824,7 @@ uk:{
   ty_btn:'Писати',ty_title:'⌨️ Писати',ty_ph:'Натискайте літери або готові слова…',ty_say:'Сказати',ty_word:'Слово',ty_clr:'Очистити',
   ty_save:'Зберегти',ty_saved:'Збережено в «Мої фрази»',ty_have:'Ця фраза вже є в «Моїх фразах»',ty_my:'Мої фрази',ty_my_empty:'Тут будуть ваші фрази. Наберіть фразу й натисніть «⭐ Зберегти».',
   ty_my_edit:'Змінити список',ty_my_done:'Готово',ty_my_del:'Прибрати фразу',ty_my_up:'Вище',ty_space:'пробіл',ty_123:'123',ty_letters:'АБВ',
-  ty_lay_abc:'АБВ',ty_lay_qw:'ЙЦУКЕН',ty_sys:'Клавіатура телефона',ty_own:'Клавіатура застосунку',ty_next:'Наступне слово:',ty_more:'Ще: розкладка, розмір, клавіатура телефона',ty_sug:'Підказки:',
+  ty_lay_abc:'АБВ',ty_lay_qw:'ЙЦУКЕН',ty_sys:'Клавіатура телефона',ty_own:'Клавіатура застосунку',ty_next:'Наступне слово:',s_resume:'Під час запуску відкривати екран, на якому закінчили (⌨️ «Писати», «Абетку», розділ плиток, 🎤)',s_saved_now:'Зміни зберігаються одразу.',ty_more:'Ще: розкладка, розмір, клавіатура телефона',ty_sug:'Підказки:',
   q_bar:['Зачекайте, я пишу…','Повторіть, будь ласка','Я не розумію','Дякую','Так, але…'],
   hm_yn:'Так / Ні',hm_my:'Мої фрази',hm_card:'Картка',
   yn_t_yn:'Так / Ні',yn_t_pain:'Біль',yn_t_well:'Самопочуття',dk_w:'Не знаю',
@@ -4872,7 +4874,7 @@ ru:{
   ty_btn:'Писать',ty_title:'⌨️ Писать',ty_ph:'Нажимайте буквы или готовые слова…',ty_say:'Сказать',ty_word:'Слово',ty_clr:'Очистить',
   ty_save:'Сохранить',ty_saved:'Сохранено в «Мои фразы»',ty_have:'Эта фраза уже есть в «Моих фразах»',ty_my:'Мои фразы',ty_my_empty:'Здесь будут ваши фразы. Наберите фразу и нажмите «⭐ Сохранить».',
   ty_my_edit:'Изменить список',ty_my_done:'Готово',ty_my_del:'Убрать фразу',ty_my_up:'Выше',ty_space:'пробел',ty_123:'123',ty_letters:'АБВ',
-  ty_lay_abc:'АБВ',ty_lay_qw:'ЙЦУКЕН',ty_sys:'Клавиатура телефона',ty_own:'Клавиатура приложения',ty_next:'Следующее слово:',ty_more:'Ещё: раскладка, размер, клавиатура телефона',ty_sug:'Подсказки:',
+  ty_lay_abc:'АБВ',ty_lay_qw:'ЙЦУКЕН',ty_sys:'Клавиатура телефона',ty_own:'Клавиатура приложения',ty_next:'Следующее слово:',s_resume:'При запуске открывать экран, на котором закончили (⌨️ «Писать», «Азбуку», раздел плиток, 🎤)',s_saved_now:'Изменения сохраняются сразу.',ty_more:'Ещё: раскладка, размер, клавиатура телефона',ty_sug:'Подсказки:',
   q_bar:['Подождите, я пишу…','Повторите, пожалуйста','Я не понимаю','Спасибо','Да, но…'],
   hm_yn:'Да / Нет',hm_my:'Мои фразы',hm_card:'Карточка',
   yn_t_yn:'Да / Нет',yn_t_pain:'Боль',yn_t_well:'Самочувствие',dk_w:'Не знаю',
@@ -4921,7 +4923,7 @@ en:{
   ty_btn:'Type',ty_title:'⌨️ Type',ty_ph:'Tap letters or ready words…',ty_say:'Say',ty_word:'Word',ty_clr:'Clear',
   ty_save:'Save',ty_saved:'Saved to “My phrases”',ty_have:'This phrase is already in “My phrases”',ty_my:'My phrases',ty_my_empty:'Your phrases will be here. Type a phrase and tap “⭐ Save”.',
   ty_my_edit:'Edit the list',ty_my_done:'Done',ty_my_del:'Remove the phrase',ty_my_up:'Up',ty_space:'space',ty_123:'123',ty_letters:'ABC',
-  ty_lay_abc:'ABC',ty_lay_qw:'QWERTY',ty_sys:'Phone keyboard',ty_own:'App keyboard',ty_next:'Next word:',ty_more:'More: layout, size, phone keyboard',ty_sug:'Suggestions:',
+  ty_lay_abc:'ABC',ty_lay_qw:'QWERTY',ty_sys:'Phone keyboard',ty_own:'App keyboard',ty_next:'Next word:',s_resume:'On start, open the screen you finished on (⌨️ Type, ABC, a tile section, 🎤)',s_saved_now:'Changes are saved at once.',ty_more:'More: layout, size, phone keyboard',ty_sug:'Suggestions:',
   q_bar:['Wait, I’m typing…','Please repeat','I don’t understand','Thank you','Yes, but…'],
   hm_yn:'Yes / No',hm_my:'My phrases',hm_card:'Card',
   yn_t_yn:'Yes / No',yn_t_pain:'Pain',yn_t_well:'Feeling',dk_w:'I don’t know',
@@ -4954,14 +4956,15 @@ en:{
 /* Справка: новые пункты и замены. Ключи — как в HELP_KEYS. */
 const MV_HELP={
 uk:{
+  resume:['Запуск з останнього екрана','Застосунок відкривається там, де його закрили: на «⌨️ Писати», в «Абетці», у розділі плиток або на 🎤 (мікрофон сам не вмикається). Так само після оновлення застосунку чи коли телефон вивантажив його з пам’яті. Набраний текст і зібраний рядок «Абетки» теж зберігаються. Вимкнути: ⚙️ → «Головний екран і плитки» — тоді застосунок відкривається на головному екрані або на «Писати» (⚙️ → «⌨️ Писати і швидкі репліки»).'],
   profile:['Призначення: для кого налаштовано',['Під час першого запуску застосунок питає, для кого його налаштовують, і як працюють руки. Змінити: ⚙️ → «Основне» → «Призначення».','«Не може говорити, але думає й пише як завжди» (БАС, видалена гортань, трахеостома, ШВЛ, дизартрія): відкривається «⌨️ Писати», плитки — повні фрази, фраза звучить одразу, без запитання «…?».','«Важко підбирати слова» (афазія): плитки з темами й уточненнями, «Абетка», запитання «…?» перед озвученням.','«Потрібні прості картинки» (виражені порушення мислення чи розуміння, аутизм, ДЦП): кілька великих плиток, «Так / Ні», без смуги реплік.','Призначення задає лише початкові налаштування: після вибору все можна змінити окремо. Руки (спосіб вибору) — окремо від призначення: людина може мислити як завжди, але керувати лише скануванням.']],
   level:['Складність плиток (⚙️)',['Як влаштовані плитки на головному екрані. Це не оцінка людини: людина може мислити як завжди й обрати прості плитки, бо так швидше.','Прості слова — кілька великих плиток: вода, їжа, туалет, болить.','Категорії й уточнення — теми, а всередині уточнення.','Фрази: початок + закінчення — тема → «Я хочу…» → закінчення.','Фрази з 3 частин — «Я хочу» → «пити» → «чай».','Повні фрази — до п’яти частин з уточненням (коли, де, навіщо, чому), зокрема в минулому часі.']],
   about:['Для чого застосунок','«Мій голос» — голос для людини, яка розуміє мовлення, але не може говорити: після інсульту (тяжка афазія, апраксія), при БАС, ДЦП, аутизмі без мовлення, після видалення гортані, з трахеостомою чи на ШВЛ, при тяжкій дизартрії. Людина обирає плитку або пише фразу — телефон вимовляє її вголос. Мікрофон самій людині не потрібен. Усе працює без інтернету, дані залишаються на телефоні.'],
   start:['Швидкий старт',['Якщо людина читає й пише — натисніть угорі «⌨️ Писати»: літери, підказки слів, «🔊 Сказати». Щоб застосунок одразу відкривався там, виберіть це в ⚙️ → «⌨️ Писати і швидкі репліки».','Якщо читати важко — користуйтеся плитками на головному екрані: тема → фраза → «Так». Плитки можна змінити й додати фото в редакторі ✏️.','«✋ Так / Ні» на головному екрані — величезні кнопки «Так», «Ні», «Не знаю» та шкали болю й самопочуття.','Якщо руки слабкі — у ⚙️ → «Керування й натискання» виберіть «Вибір утриманням», «Натискання затримкою» або «Сканування».','Заповніть «🪪 Екстрену картку» і контакти близьких у ⚙️.']],
   top:['Кнопки вгорі',['🏠 — на головний екран.','⌨️ Писати — швидкий набір тексту з підказкою слів і «Мої фрази».','🔤 Абетка — знайти слово за першою літерою (для тих, кому важко писати по літерах).','🎤 — говорить співрозмовник: його мовлення з’являється великим текстом (якщо людина погано чує), там же «📋 Показати скопійоване».','⚙️ — налаштування. ❓ — довідка: на головному екрані — уся, в інших режимах — лише про цей режим, угорі «🎓 Навчання». ✏️ — редактор плиток (на головному екрані).','Мова фраз та озвучення й мова меню обираються в ⚙️ → «Основне».']],
-  sett:['Налаштування (⚙️)','Налаштування розбито на групи: «Основне», «👥 Близькі: дзвінок і повідомлення», «🪪 Екстрена картка», «Озвучення», «Головний екран і плитки», «⌨️ Писати і швидкі репліки», «Керування й натискання» (спосіб вибору), «🎤 Співрозмовник», «🔤 Абетка», «Інтернет», «Дані», «ℹ️ Про застосунок». Натисніть на назву групи, щоб розгорнути її; відкрита завжди одна група, а під назвою згорнутої видно її головні значення.'],
+  sett:['Налаштування (⚙️)','Налаштування розбито на групи: «Основне», «👥 Близькі: дзвінок і повідомлення», «🪪 Екстрена картка», «Озвучення», «Головний екран і плитки», «⌨️ Писати і швидкі репліки», «Керування й натискання» (спосіб вибору), «🎤 Співрозмовник», «🔤 Абетка», «Інтернет», «Дані», «ℹ️ Про застосунок». Натисніть на назву групи, щоб розгорнути її; відкрита завжди одна група, а під назвою згорнутої видно її головні значення. Зміни зберігаються одразу; «Закрити» лише закриває вікно.'],
   backup:['Резервна копія',['У налаштуваннях: «Зберегти копію даних» створює файл з усіма налаштуваннями, картою, «Моїми фразами», правками плиток і щоденником; «Завантажити копію даних» відновлює їх (наприклад, на новому телефоні). Можна завантажити й копію з «Говоримо разом» — перенесуться плитки й налаштування.','Переустановлення. «Мій голос», «Говоримо разом» і «Знову слова» встановлюються поруч як окремі застосунки. Якщо після видалення Chrome не пропонує встановити застосунок знову, очистьте дані сайту: налаштування Chrome → «Налаштування сайтів» → «Усі сайти» → bispalov.github.io → «Очистити й скинути» (назви пунктів можуть трохи відрізнятися).','⚠️ Усі три застосунки розміщені на одній адресі (bispalov.github.io), тому очищення видаляє дані всіх трьох. Спершу збережіть резервну копію в кожному застосунку, а після встановлення завантажте її назад.']],
-  type:['⌨️ Писати: швидкий набір',['Головний екран для тих, хто читає й пише. Натискайте літери — над клавіатурою з’являються підказки: слова, що починаються з набраного, а після пробілу — слова, які зазвичай ідуть далі. Натискання на підказку вставляє слово.','Підказки вчаться: слова й пари слів зі сказаних вами фраз підказуються першими. Повніший словник можна завантажити в ⚙️ → «Дані» → «Словники».','«🔊 Сказати» — телефон вимовляє фразу й показує її у вікні «Сказано» (там «👁 Показати співрозмовнику» і ✉️ повідомлення близьким). «⌫ Слово» стирає останнє слово, 🗑 — усе; «↶ Повернути» повертає стерте.','Розкладка «АБВ» (за абеткою, великі кнопки) або «ЙЦУКЕН» перемикається на панелі клавіатури; там же «Дрібніше / Крупніше», «123» (цифри й знаки) і «📱 Клавіатура телефона» — якщо зручніше писати звичайною клавіатурою телефона з її підказками.','Набраний текст зберігається, поки застосунок відкритий.']],
+  type:['⌨️ Писати: швидкий набір',['Головний екран для тих, хто читає й пише. Натискайте літери — над клавіатурою з’являються підказки: слова, що починаються з набраного, а після пробілу — слова, які зазвичай ідуть далі. Натискання на підказку вставляє слово.','Підказки вчаться: слова й пари слів зі сказаних вами фраз підказуються першими. Повніший словник можна завантажити в ⚙️ → «Дані» → «Словники».','«🔊 Сказати» — телефон вимовляє фразу й показує її у вікні «Сказано» (там «👁 Показати співрозмовнику» і ✉️ повідомлення близьким). «⌫ Слово» стирає останнє слово, 🗑 — усе; «↶ Повернути» повертає стерте.','Розкладка «АБВ» (за абеткою, великі кнопки) або «ЙЦУКЕН» перемикається на панелі клавіатури; там же «Дрібніше / Крупніше», «123» (цифри й знаки) і «📱 Клавіатура телефона» — якщо зручніше писати звичайною клавіатурою телефона з її підказками.','Набраний текст зберігається на телефоні й не зникає після оновлення чи перезапуску застосунку; очищається після «Сказати». Для кожної мови — свій.']],
   myph:['📃 Мої фрази',['Свої часті фрази можна зберегти: наберіть фразу й натисніть «⭐ Зберегти». Список «📃 Мої фрази» є на екрані «Писати» і кнопкою на головному екрані; натискання вимовляє фразу одразу.','«Змінити список» — прибрати фразу ✖ або підняти її вище ▲. Фрази зберігаються на телефоні окремо для кожної мови й входять у резервну копію. Для БАС корисно заздалегідь записати звичні фрази, жарти, звертання до близьких.']],
   quickbar:['Швидкі репліки',['Смуга над нижньою панеллю: «Зачекайте, я пишу…», «Повторіть, будь ласка», «Я не розумію», «Дякую», «Так, але…». Натискання вимовляє репліку одразу, без запитання. Співрозмовник чує, що людина відповідає, і не перебиває.','Смугу можна прибрати в ⚙️ → «⌨️ Писати і швидкі репліки». Якщо реплік більше, ніж уміщається, смугу можна гортати пальцем.']],
   sel:['Спосіб вибору: утримання, затримка, сканування',['У ⚙️ → «Керування й натискання» → «Спосіб вибору».','Звичайне торкання — як зазвичай.','Вибір утриманням — кнопку треба втримати близько пів секунди; допомагає при треморі й випадкових дотиках.','Натискання затримкою — палець, стилус чи курсор лежить на кнопці, і вона спрацьовує за обраний час (0,8–3 с) без відривання; тремтіння пальця не заважає. Жовта смужка показує, скільки лишилося.','Сканування — для тих, у кого руки майже не працюють. Застосунок по черзі підсвічує рядки кнопок (жовта рамка), потім кнопки в обраному рядку. Вибір — торкання будь-якого місця екрана або зовнішня кнопка. Одна кнопка: перебір іде сам зі швидкістю, яку ви обрали. Дві кнопки: «Далі» — Пробіл, → або ↓; «Вибрати» — Enter (так працюють більшість Bluetooth-кнопок для людей з інвалідністю). Якщо в рядку нічого не вибрано за два кола, підсвітка повертається до рядків.','Усередині налаштувань, довідки й редактора завжди працює звичайне торкання — для близьких; відкрити їх (⚙️, ❓, ✏️) можна тим самим способом вибору: затримкою або скануванням.']],
@@ -4969,14 +4972,15 @@ uk:{
   card:['🪪 Екстрена картка',['Картка для лікаря чи перехожого: «Я не можу говорити, але все розумію…», ім’я, діагноз, ліки, алергія, номери близьких — що заповните. Заповнення: ⚙️ → «🪪 Екстрена картка».','Показати: кнопка «🪪 Картка» на головному екрані, на червоному екрані «Допомога» (сигнал при цьому замовкає) або з меню значка: утримайте значок застосунку на головному екрані телефона й виберіть «Екстрена картка». Відкрити картку з екрана блокування веб-застосунок не може.','«🔊 Прочитати вголос» вимовляє головний текст картки. Дані зберігаються лише на телефоні.']]
 },
 ru:{
+  resume:['Запуск с последнего экрана','Приложение открывается там, где его закрыли: на «⌨️ Писать», в «Азбуке», в разделе плиток или на 🎤 (микрофон сам не включается). Так же после обновления приложения или когда телефон выгрузил его из памяти. Набранный текст и собранная строка «Азбуки» тоже сохраняются. Выключить: ⚙️ → «Главный экран и плитки» — тогда приложение открывается на главном экране или на «Писать» (⚙️ → «⌨️ Писать и быстрые реплики»).'],
   profile:['Назначение: для кого настроено',['При первом запуске приложение спрашивает, для кого его настраивают и как работают руки. Изменить: ⚙️ → «Основное» → «Назначение».','«Не может говорить, но думает и пишет как всегда» (БАС, удалённая гортань, трахеостома, ИВЛ, дизартрия): открывается «⌨️ Писать», плитки — полные фразы, фраза звучит сразу, без вопроса «…?».','«Трудно подбирать слова» (афазия): плитки с темами и уточнениями, «Азбука», вопрос «…?» перед озвучкой.','«Нужны простые картинки» (выраженные нарушения мышления или понимания, аутизм, ДЦП): несколько крупных плиток, «Да / Нет», без полосы реплик.','Назначение задаёт только начальные настройки: после выбора всё можно изменить по отдельности. Руки (способ выбора) — отдельно от назначения: человек может думать как всегда, но управлять только сканированием.']],
   level:['Сложность плиток (⚙️)',['Как устроены плитки на главном экране. Это не оценка человека: человек может думать как всегда и выбрать простые плитки, потому что так быстрее.','Простые слова — несколько крупных плиток: вода, еда, туалет, больно.','Категории и уточнения — темы, а внутри уточнения.','Фразы: начало + окончание — тема → «Я хочу…» → окончание.','Фразы из 3 частей — «Я хочу» → «пить» → «чай».','Полные фразы — до пяти частей с уточнением (когда, где, зачем, почему), в том числе в прошедшем времени.']],
   about:['Для чего приложение','«Мой голос» — голос для человека, который понимает речь, но не может говорить: после инсульта (тяжёлая афазия, апраксия), при БАС, ДЦП, аутизме без речи, после удаления гортани, с трахеостомой или на ИВЛ, при тяжёлой дизартрии. Человек выбирает плитку или пишет фразу — телефон произносит её вслух. Микрофон самому человеку не нужен. Всё работает без интернета, данные остаются на телефоне.'],
   start:['Быстрый старт',['Если человек читает и пишет — нажмите вверху «⌨️ Писать»: буквы, подсказки слов, «🔊 Сказать». Чтобы приложение сразу открывалось там, выберите это в ⚙️ → «⌨️ Писать и быстрые реплики».','Если читать трудно — пользуйтесь плитками на главном экране: тема → фраза → «Да». Плитки можно изменить и добавить фото в редакторе ✏️.','«✋ Да / Нет» на главном экране — огромные кнопки «Да», «Нет», «Не знаю» и шкалы боли и самочувствия.','Если руки слабые — в ⚙️ → «Управление и нажатия» выберите «Выбор удержанием», «Нажатие задержкой» или «Сканирование».','Заполните «🪪 Экстренную карточку» и контакты близких в ⚙️.']],
   top:['Кнопки вверху',['🏠 — на главный экран.','⌨️ Писать — быстрый набор текста с подсказкой слов и «Мои фразы».','🔤 Азбука — найти слово по первой букве (для тех, кому трудно писать по буквам).','🎤 — говорит собеседник: его речь появляется крупным текстом (если человек плохо слышит), там же «📋 Показать скопированное».','⚙️ — настройки. ❓ — справка: на главном экране — вся, в других режимах — только об этом режиме, вверху «🎓 Обучение». ✏️ — редактор плиток (на главном экране).','Язык фраз и озвучки и язык меню выбираются в ⚙️ → «Основное».']],
-  sett:['Настройки (⚙️)','Настройки разбиты на группы: «Основное», «👥 Близкие: звонок и сообщение», «🪪 Экстренная карточка», «Озвучка», «Главный экран и плитки», «⌨️ Писать и быстрые реплики», «Управление и нажатия» (способ выбора), «🎤 Собеседник», «🔤 Азбука», «Интернет», «Данные», «ℹ️ О приложении». Нажмите на название группы, чтобы раскрыть её; открыта всегда одна группа, а под названием свёрнутой видны её главные значения.'],
+  sett:['Настройки (⚙️)','Настройки разбиты на группы: «Основное», «👥 Близкие: звонок и сообщение», «🪪 Экстренная карточка», «Озвучка», «Главный экран и плитки», «⌨️ Писать и быстрые реплики», «Управление и нажатия» (способ выбора), «🎤 Собеседник», «🔤 Азбука», «Интернет», «Данные», «ℹ️ О приложении». Нажмите на название группы, чтобы раскрыть её; открыта всегда одна группа, а под названием свёрнутой видны её главные значения. Изменения сохраняются сразу; «Закрыть» только закрывает окно.'],
   backup:['Резервная копия',['В настройках: «Сохранить копию данных» создаёт файл со всеми настройками, карточкой, «Моими фразами», правками плиток и дневником; «Загрузить копию данных» восстанавливает их (например, на новом телефоне). Можно загрузить и копию из «Говорим вместе» — перенесутся плитки и настройки.','Переустановка. «Мой голос», «Говорим вместе» и «Снова слова» ставятся рядом как отдельные приложения. Если после удаления Chrome не предлагает установить приложение снова, очистите данные сайта: настройки Chrome → «Настройки сайтов» → «Все сайты» → bispalov.github.io → «Очистить и сбросить» (названия пунктов могут немного отличаться).','⚠️ Все три приложения размещены на одном адресе (bispalov.github.io), поэтому очистка удаляет данные всех трёх. Сначала сохраните резервную копию в каждом приложении, а после установки загрузите её обратно.']],
-  type:['⌨️ Писать: быстрый набор',['Главный экран для тех, кто читает и пишет. Нажимайте буквы — над клавиатурой появляются подсказки: слова, начинающиеся с набранного, а после пробела — слова, которые обычно идут дальше. Нажатие на подсказку вставляет слово.','Подсказки учатся: слова и пары слов из сказанных вами фраз подсказываются первыми. Более полный словарь можно загрузить в ⚙️ → «Данные» → «Словари».','«🔊 Сказать» — телефон произносит фразу и показывает её в окне «Сказано» (там «👁 Показать собеседнику» и ✉️ сообщение близким). «⌫ Слово» стирает последнее слово, 🗑 — всё; «↶ Вернуть» возвращает стёртое.','Раскладка «АБВ» (по алфавиту, крупные кнопки) или «ЙЦУКЕН» переключается на панели клавиатуры; там же «Мельче / Крупнее», «123» (цифры и знаки) и «📱 Клавиатура телефона» — если удобнее писать обычной клавиатурой телефона с её подсказками.','Набранный текст сохраняется, пока приложение открыто.']],
+  type:['⌨️ Писать: быстрый набор',['Главный экран для тех, кто читает и пишет. Нажимайте буквы — над клавиатурой появляются подсказки: слова, начинающиеся с набранного, а после пробела — слова, которые обычно идут дальше. Нажатие на подсказку вставляет слово.','Подсказки учатся: слова и пары слов из сказанных вами фраз подсказываются первыми. Более полный словарь можно загрузить в ⚙️ → «Данные» → «Словари».','«🔊 Сказать» — телефон произносит фразу и показывает её в окне «Сказано» (там «👁 Показать собеседнику» и ✉️ сообщение близким). «⌫ Слово» стирает последнее слово, 🗑 — всё; «↶ Вернуть» возвращает стёртое.','Раскладка «АБВ» (по алфавиту, крупные кнопки) или «ЙЦУКЕН» переключается на панели клавиатуры; там же «Мельче / Крупнее», «123» (цифры и знаки) и «📱 Клавиатура телефона» — если удобнее писать обычной клавиатурой телефона с её подсказками.','Набранный текст хранится на телефоне и не пропадает после обновления или перезапуска приложения; очищается после «Сказать». Для каждого языка — свой.']],
   myph:['📃 Мои фразы',['Свои частые фразы можно сохранить: наберите фразу и нажмите «⭐ Сохранить». Список «📃 Мои фразы» есть на экране «Писать» и кнопкой на главном экране; нажатие произносит фразу сразу.','«Изменить список» — убрать фразу ✖ или поднять её выше ▲. Фразы хранятся на телефоне отдельно для каждого языка и входят в резервную копию. При БАС полезно заранее записать привычные фразы, шутки, обращения к близким.']],
   quickbar:['Быстрые реплики',['Полоса над нижней панелью: «Подождите, я пишу…», «Повторите, пожалуйста», «Я не понимаю», «Спасибо», «Да, но…». Нажатие произносит реплику сразу, без вопроса. Собеседник слышит, что человек отвечает, и не перебивает.','Полосу можно убрать в ⚙️ → «⌨️ Писать и быстрые реплики». Если реплик больше, чем помещается, полосу можно листать пальцем.']],
   sel:['Способ выбора: удержание, задержка, сканирование',['В ⚙️ → «Управление и нажатия» → «Способ выбора».','Обычное касание — как обычно.','Выбор удержанием — кнопку нужно удержать около полсекунды; помогает при треморе и случайных касаниях.','Нажатие задержкой — палец, стилус или курсор лежит на кнопке, и она срабатывает через выбранное время (0,8–3 с) без отрыва; дрожание пальца не мешает. Жёлтая полоска показывает, сколько осталось.','Сканирование — для тех, у кого руки почти не работают. Приложение по очереди подсвечивает строки кнопок (жёлтая рамка), затем кнопки в выбранной строке. Выбор — касание любого места экрана или внешняя кнопка. Одна кнопка: перебор идёт сам с выбранной скоростью. Две кнопки: «Дальше» — Пробел, → или ↓; «Выбрать» — Enter (так работает большинство Bluetooth-кнопок для людей с инвалидностью). Если в строке ничего не выбрано за два круга, подсветка возвращается к строкам.','Внутри настроек, справки и редактора всегда работает обычное касание — для близких; открыть их (⚙️, ❓, ✏️) можно тем же способом выбора: задержкой или сканированием.']],
@@ -4984,14 +4988,15 @@ ru:{
   card:['🪪 Экстренная карточка',['Карточка для врача или прохожего: «Я не могу говорить, но всё понимаю…», имя, диагноз, лекарства, аллергия, номера близких — что заполните. Заполнение: ⚙️ → «🪪 Экстренная карточка».','Показать: кнопка «🪪 Карточка» на главном экране, на красном экране «Помощь» (сигнал при этом замолкает) или из меню значка: удерживайте значок приложения на главном экране телефона и выберите «Экстренная карточка». Открыть карточку с экрана блокировки веб-приложение не может.','«🔊 Прочитать вслух» произносит главный текст карточки. Данные хранятся только на телефоне.']]
 },
 en:{
+  resume:['Start on the last screen','The app opens where it was closed: on “⌨️ Type”, in ABC, in a tile section or on 🎤 (the microphone does not switch on by itself). The same after an app update or when the phone unloaded it from memory. The typed text and the ABC line are kept too. To turn it off: ⚙️ → “Home screen and tiles”; then the app opens on the home screen or on Type (⚙️ → “⌨️ Typing and quick replies”).'],
   profile:['Purpose: who it is set up for',['At first start the app asks who it is set up for and how the hands work. To change: ⚙️ → “Main” → “Purpose”.','“Cannot speak, but thinks and writes as usual” (ALS, laryngectomy, tracheostomy, ventilation, dysarthria): opens on “⌨️ Type”, tiles are full phrases, a phrase is spoken at once, without the “…?” question.','“Finds words hard” (aphasia): tiles with topics and details, ABC, a “…?” question before speaking.','“Needs simple pictures” (marked thinking or understanding difficulties, autism, cerebral palsy): a few large tiles, “Yes / No”, no quick replies strip.','The purpose only sets the starting settings; everything can be changed separately afterwards. Hands (the selection method) are separate from the purpose: a person may think as usual but control the app only by scanning.']],
   level:['Tile complexity (⚙️)',['How the tiles on the home screen are built. This is not an assessment of the person: someone who thinks as usual may pick simple tiles because it is faster.','Simple words — a few large tiles: water, food, toilet, pain.','Categories and details — topics with details inside.','Phrases: start + ending — topic → “I want…” → ending.','3-part phrases — “I want” → “to drink” → “tea”.','Full phrases — up to five parts with details (when, where, why), including the past tense.']],
   about:['What the app is for','“My Voice” is a voice for a person who understands speech but cannot speak: after a stroke (severe aphasia, apraxia), with ALS, cerebral palsy, non-speaking autism, after a laryngectomy, with a tracheostomy or on a ventilator, with severe dysarthria. The person picks a tile or types a phrase, and the phone says it aloud. The person does not need the microphone. Everything works offline, and the data stays on the phone.'],
   start:['Quick start',['If the person can read and write, tap “⌨️ Type” at the top: letters, word suggestions, “🔊 Say”. To open the app there at start, choose it in ⚙️ → “⌨️ Typing and quick replies”.','If reading is hard, use the tiles on the home screen: topic → phrase → “Yes”. Tiles can be changed and given photos in the ✏️ editor.','“✋ Yes / No” on the home screen gives huge “Yes”, “No”, “I don’t know” buttons and pain and feeling scales.','If the hands are weak, choose “Hold to select”, “Dwell” or “Scanning” in ⚙️ → “Controls and taps”.','Fill in the “🪪 Emergency card” and the loved ones’ contacts in ⚙️.']],
   top:['Top buttons',['🏠 — home screen.','⌨️ Type — fast typing with word suggestions and “My phrases”.','🔤 ABC — find a word by its first letter (for those who find spelling hard).','🎤 — the other person speaks: their speech appears in large text (if the person is hard of hearing); “📋 Show copied text” is there too.','⚙️ — settings. ❓ — help: the whole help on the home screen, only this mode elsewhere, with “🎓 Tutorial” at the top. ✏️ — tile editor (on the home screen).','The phrase and voice language and the menu language are chosen in ⚙️ → “Main”.']],
-  sett:['Settings (⚙️)','Settings are split into groups: “Main”, “👥 Loved ones: call and message”, “🪪 Emergency card”, “Voice”, “Home screen and tiles”, “⌨️ Typing and quick replies”, “Controls and taps” (how to select), “🎤 The other person”, “🔤 ABC”, “Internet”, “Data”, “ℹ️ About”. Tap a group name to open it; one group is open at a time, and the main values of a closed group are shown under its name.'],
+  sett:['Settings (⚙️)','Settings are split into groups: “Main”, “👥 Loved ones: call and message”, “🪪 Emergency card”, “Voice”, “Home screen and tiles”, “⌨️ Typing and quick replies”, “Controls and taps” (how to select), “🎤 The other person”, “🔤 ABC”, “Internet”, “Data”, “ℹ️ About”. Tap a group name to open it; one group is open at a time, and the main values of a closed group are shown under its name. Changes are saved at once; “Close” only closes the window.'],
   backup:['Backup',['In Settings: “Save a data backup” creates a file with all settings, the card, “My phrases”, tile edits and the diary; “Load a data backup” restores them (for example, on a new phone). A backup from “Let’s talk together” can be loaded too: tiles and settings will move over.','Reinstalling. “My Voice”, “Let’s talk together” and “Words Again” install side by side as separate apps. If Chrome does not offer to install the app again after removing it, clear the site data: Chrome settings → “Site settings” → “All sites” → bispalov.github.io → “Clear & reset” (item names may differ slightly).','⚠️ All three apps live at the same address (bispalov.github.io), so clearing removes the data of all three. Save a backup in each app first, and load it back after installing.']],
-  type:['⌨️ Type: fast typing',['The main screen for those who read and write. Tap letters and suggestions appear above the keyboard: words starting with what you typed, and after a space, words that usually come next. Tap a suggestion to insert the word.','Suggestions learn: words and word pairs from your spoken phrases come first. A fuller dictionary can be downloaded in ⚙️ → “Data” → “Dictionaries”.','“🔊 Say” speaks the phrase and shows it in the “Said” window (with “👁 Show to the other person” and ✉️ messages to loved ones). “⌫ Word” deletes the last word, 🗑 everything; “↶ Undo” brings it back.','The “ABC” layout (alphabetical, large keys) or “QWERTY” is switched on the keyboard panel; there are also “Smaller / Larger”, “123” (digits and signs) and “📱 Phone keyboard”, if it is easier to type with the phone’s own keyboard and its suggestions.','The typed text is kept while the app is open.']],
+  type:['⌨️ Type: fast typing',['The main screen for those who read and write. Tap letters and suggestions appear above the keyboard: words starting with what you typed, and after a space, words that usually come next. Tap a suggestion to insert the word.','Suggestions learn: words and word pairs from your spoken phrases come first. A fuller dictionary can be downloaded in ⚙️ → “Data” → “Dictionaries”.','“🔊 Say” speaks the phrase and shows it in the “Said” window (with “👁 Show to the other person” and ✉️ messages to loved ones). “⌫ Word” deletes the last word, 🗑 everything; “↶ Undo” brings it back.','The “ABC” layout (alphabetical, large keys) or “QWERTY” is switched on the keyboard panel; there are also “Smaller / Larger”, “123” (digits and signs) and “📱 Phone keyboard”, if it is easier to type with the phone’s own keyboard and its suggestions.','The typed text is kept on the phone and survives an update or restart of the app; it is cleared after “Say”. Each language has its own.']],
   myph:['📃 My phrases',['Save your frequent phrases: type a phrase and tap “⭐ Save”. The “📃 My phrases” list is on the Type screen and as a button on the home screen; a tap speaks the phrase at once.','“Edit the list” removes a phrase ✖ or moves it up ▲. Phrases are kept on the phone for each language separately and are included in the backup. With ALS it helps to record usual phrases, jokes and ways to address loved ones in advance.']],
   quickbar:['Quick replies',['A strip above the bottom bar: “Wait, I’m typing…”, “Please repeat”, “I don’t understand”, “Thank you”, “Yes, but…”. A tap speaks the reply at once, without a question. The other person hears that you are answering and does not interrupt.','The strip can be turned off in ⚙️ → “⌨️ Typing and quick replies”. If the replies do not fit, swipe the strip sideways.']],
   sel:['How to select: hold, dwell, scanning',['In ⚙️ → “Controls and taps” → “How to select”.','Normal tap — as usual.','Hold to select — hold a button for about half a second; helps with tremor and accidental touches.','Dwell — a finger, stylus or pointer rests on a button, and it works after the chosen time (0.8–3 s) without lifting; a trembling finger does not matter. A yellow bar shows the time left.','Scanning — for those whose hands barely work. The app highlights rows of buttons one by one (yellow frame), then the buttons in the chosen row. To select, touch anywhere on the screen or press an external switch. One switch: scanning moves by itself at the chosen speed. Two switches: “Next” is Space, → or ↓; “Select” is Enter (most Bluetooth accessibility switches work this way). If nothing is chosen in a row after two rounds, the highlight returns to the rows.','Inside Settings, Help and the editor normal taps always work, for the loved ones; open them (⚙️, ❓, ✏️) with the same selection method: dwell or scanning.']],
@@ -5043,6 +5048,11 @@ for(const l of ['uk','ru','en'])Object.assign(U[l],MV[l]);
   for(const l of ['uk','ru','en']){
     ['d_exp_title','m_show_note','s_clipauto','s_showauto'].forEach(k=>{if(U[l][k])U[l][k]=fix(l,U[l][k])});
     const H=U[l].helpDoc;H.s=H.s.map(it=>fix(l,it));
+    // строка «Азбуки» теперь переживает перезапуск
+    const KEEP={uk:[/зібраний рядок зберігається, поки застосунок відкритий/,'зібраний рядок зберігається й після перезапуску; очищається після «Сказати так»'],
+                ru:[/собранная строка сохраняется, пока приложение открыто/,'собранная строка сохраняется и после перезапуска; очищается после «Сказать так»'],
+                en:[/the line is kept while the app is open/,'the line is kept even after a restart; it is cleared after “Say it”']}[l];
+    H.s=H.s.map(it=>JSON.parse(JSON.stringify(it).replace(KEEP[0],KEEP[1])));
   }
 })();
 
@@ -5081,6 +5091,7 @@ if(settings.kbLayout!=='qw')settings.kbLayout='abc';
 if(!settings.card||typeof settings.card!=='object')settings.card=JSON.parse(JSON.stringify(MV_DEF.card));
 ['name','main','dx','meds','allergy','notes'].forEach(k=>{settings.card[k]=String(settings.card[k]||'')});settings.card.sos=settings.card.sos!==false;
 settings.holdSel=settings.selMode==='hold';
+if(settings.resumeDef!==1){settings.resume=true;settings.resumeDef=1}   // v4: «Запуск с последнего экрана» включён по умолчанию; дальше — как выберет человек
 settings.hearTab='show';hearTab='show';             // вкладки «Говорю я» нет: экран 🎤 — только собеседник
 const capFirst=s=>s?s.charAt(0).toLocaleUpperCase(lang)+s.slice(1):s;
 function mvToast(txt){
@@ -5091,6 +5102,25 @@ function mvToast(txt){
 
 /* ======================= ⌨️ Писать ======================= */
 let typeOn=false,tyText='',tyUndo=null,tyMy=false,tyMyEdit=false,tyNum=false;
+/* Черновик: набранное в «Писать» и строка «Азбуки» не пропадают при перезагрузке страницы
+   (обновление приложения, выгрузка телефоном из памяти). Хранится на телефоне отдельно для каждого языка,
+   очищается после «Сказать». sessionStorage не годится — его теряет выгрузка из памяти. */
+const draftKey=()=>'mv.draft.'+lang;
+let draftLast='';
+function draftLoad(){
+  const d=ld(draftKey(),null)||{};
+  tyText=typeof d.ty==='string'?d.ty.slice(0,2000):'';
+  abcLine=Array.isArray(d.abc)?d.abc.filter(x=>typeof x==='string').slice(0,60):[];
+  draftLast=JSON.stringify({ty:tyText,abc:abcLine});
+}
+function draftSave(){
+  const j=JSON.stringify({ty:tyText,abc:abcLine});if(j===draftLast)return;draftLast=j;
+  try{if(!tyText&&!abcLine.length)localStorage.removeItem(draftKey());else localStorage.setItem(draftKey(),j)}catch(_){}
+}
+draftLoad();
+setInterval(draftSave,1000);
+addEventListener('visibilitychange',()=>{if(document.hidden)draftSave()});
+addEventListener('pagehide',draftSave);
 const tyMyKey=()=>'mv.myph.'+lang;
 function tyMyList(){const a=ld(tyMyKey(),[]);return Array.isArray(a)?a.filter(x=>typeof x==='string'&&x.trim()):[]}
 function tyMySave(a){try{localStorage.setItem(tyMyKey(),JSON.stringify(a.slice(0,300)))}catch(_){}}
@@ -5188,7 +5218,7 @@ function tyDelWord(){
 function tyClear(){if(!tyText.trim())return;tyUndo=tyText;tyText='';tyRefresh()}
 function tySay(){
   const tx=tyText.trim();if(!tx)return;
-  tyLearn(tx);tyUndo=tyText;tyText='';
+  tyLearn(tx);tyUndo=tyText;tyText='';draftSave();
   say(capFirst(tx),false,{recent:1,e:'⌨️'});
 }
 function tySaveMy(){
@@ -5261,6 +5291,7 @@ function tyRefresh(){
   if(box)tyBoxFill(box);if(sg)tySugFill(sg);if(ac)tyActFill(ac);
   tyFit();
   if(inp&&inp.value!==tyText)inp.value=tyText;
+  draftSave();
 }
 function tyMyPanel(){
   const d=h('div','tymy');
@@ -5304,7 +5335,7 @@ function renderType(keep){
   const top=h('div','tytop');
   if(settings.tySys){
     const inp=h('textarea','tyin');inp.id='tyIn';inp.rows=2;inp.placeholder=u('ty_ph');inp.value=tyText;inp.setAttribute('autocapitalize','sentences');
-    inp.oninput=()=>{tyText=inp.value;tyUndo=null;const sg=$('#tySug'),ac=$('#tyAct');if(sg)tySugFill(sg);if(ac)tyActFill(ac)};
+    inp.oninput=()=>{tyText=inp.value;tyUndo=null;draftSave();const sg=$('#tySug'),ac=$('#tyAct');if(sg)tySugFill(sg);if(ac)tyActFill(ac)};
     top.append(inp);
   }else{
     const box=h('div','tybox');box.id='tyBox';box.setAttribute('aria-live','polite');top.append(box);
@@ -5699,6 +5730,19 @@ $('#settingsBtn').onclick=()=>{_openSett();mvSettLoad();if(typeOn)settSet('type'
 const _closeSett=$('#closeSettBtn').onclick;
 $('#closeSettBtn').onclick=()=>{mvSettSave();_closeSett();drawQuick();scanApply()};
 $('#setSelMode').addEventListener('change',selSync);
+/* Настройки сохраняются сразу при изменении (не только по «Закрыть»): выполняется тот же код сохранения,
+   окно остаётся открытым на той же прокрутке. Текстовые поля — по завершении ввода (change) и при уходе из приложения. */
+let settSaving=false;
+function settSaveNow(){
+  const m=$('#sett');if(!m||m.style.display!=='block'||settSaving)return;
+  settSaving=true;const st=m.scrollTop;
+  try{$('#closeSettBtn').onclick()}finally{settSaving=false;if(m.scrollTop!==st)m.scrollTop=st}
+}
+$('#sett').addEventListener('change',e=>{
+  const t=e.target;if(!t.matches||!t.matches('input,select,textarea')||t.type==='file')return;
+  setTimeout(settSaveNow,0);   // после собственных обработчиков поля (язык, назначение)
+});
+addEventListener('visibilitychange',()=>{if(document.hidden)settSaveNow()});
 // Смена назначения: по согласию подставить его начальные значения в форму (сохранятся по «Закрыть»)
 $('#setProfile').addEventListener('change',()=>{
   const d=PROFILES[$('#setProfile').value];if(!d||!confirm(uh('pf_apply')))return;

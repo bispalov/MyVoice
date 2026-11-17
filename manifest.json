@@ -1,0 +1,23 @@
+{
+  "id": "/MyVoice/",
+  "name": "Мій голос",
+  "short_name": "Мій голос",
+  "description": "Голос для людей, які розуміють мовлення, але не можуть говорити",
+  "lang": "uk",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#12181F",
+  "theme_color": "#12181F",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Екстрена картка", "short_name": "Картка", "url": "./index.html?open=card", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
+    { "name": "Писати", "short_name": "Писати", "url": "./index.html?open=type", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
+    { "name": "Так / Ні", "short_name": "Так / Ні", "url": "./index.html?open=yn", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] }
+  ]
+}

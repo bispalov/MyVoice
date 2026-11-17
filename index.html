@@ -447,6 +447,22 @@ body.dwell button,body.dwell a.call{position:relative}
 #mvToast{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:70;background:#111c;color:#fff;padding:12px 18px;border-radius:14px;font-size:17px;max-width:90vw;text-align:center;pointer-events:none}
 .modal textarea{width:100%;font:inherit;padding:10px;border:2px solid var(--border);border-radius:10px;background:var(--card-bg);color:var(--ink);min-height:80px;user-select:text}
 .modal input,.modal textarea{user-select:text}
+
+/* Первый запуск: для кого и руки */
+#setup{position:fixed;inset:0;z-index:58;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;padding:max(10px,env(safe-area-inset-top)) 12px max(10px,env(safe-area-inset-bottom))}
+.suscroll{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:10px;max-width:640px;width:100%;margin:0 auto}
+#setup h2{flex:0 0 auto;margin:6px 2px 2px;font-size:clamp(22px,6.6vw,28px);line-height:1.2}
+.sulang{flex:0 0 auto;display:flex;gap:6px}
+.sul{flex:1 1 0;min-width:0;min-height:46px;border-radius:12px;background:var(--card-bg);border:2px solid var(--border);font-size:clamp(13px,3.9vw,17px);padding:0 4px;flex-shrink:1}
+.sul.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.suopt{flex:0 0 auto;display:flex;align-items:center;gap:12px;min-height:84px;padding:10px 12px;border-radius:18px;background:var(--card-bg);border:3px solid var(--border);text-align:left}
+.suopt .ic{font-size:clamp(30px,9vw,40px);flex:0 0 auto}
+.sut{display:flex;flex-direction:column;gap:4px;min-width:0}
+.sut b{font-size:clamp(18px,5.4vw,22px);line-height:1.2;overflow-wrap:anywhere}
+.sut small{font-size:clamp(14px,4vw,16px);font-weight:600;opacity:.8;line-height:1.3;overflow-wrap:anywhere}
+.sunote{font-size:15px;opacity:.75;margin:4px 2px}
+#setup .row{flex:0 0 auto;margin-top:8px;max-width:640px;width:100%;align-self:center}
+.subk{flex:1;min-height:56px;border-radius:14px;background:var(--navy);color:#fff;font-weight:800}
 </style>
 </head>
 <body>
@@ -478,6 +494,9 @@ body.dwell button,body.dwell a.call{position:relative}
 <div id="sett" class="modal">
   <div class="helphead"><h2 data-i="s_title"></h2><button id="closeSettBtn2" data-i="s_close"></button></div>
   <div class="sg" data-g="main"><button class="sgh" type="button" data-t="g_main"></button><div class="sgb">
+    <label data-i="s_profile"></label>
+    <select id="setProfile"></select>
+    <div class="note" id="pfNote"></div>
     <label data-i="s_lang"></label>
     <select id="setLang"></select>
     <label class="chk"><input type="checkbox" id="setTourOffer"><span data-i="s_tour"></span></label>
@@ -614,7 +633,7 @@ body.dwell button,body.dwell a.call{position:relative}
 <div id="diary" class="modal"></div>
 
 <script>
-const APP_VERSION = 1;   // держите в соответствии с V = 'govorim-v70' в sw.js
+const APP_VERSION = 2;   // держите в соответствии с V = 'govorim-v70' в sw.js
 // Логин автора на GitHub: ссылки «Автор» и «Исходный код» в ⚙️ → «ℹ️ О приложении» (работают и в копиях на других сайтах).
 // Если оставить пустым, логин берётся из адреса <логин>.github.io.
 const APP_AUTHOR_GH = 'bispalov';
@@ -4778,6 +4797,19 @@ function aboutRender(){
 const MV={
 uk:{
   title:'Мій голос',
+  s_level:'Складність плиток',
+  lvl:{L1:'Прості слова',L2:'Категорії й уточнення',L3:'Фрази: початок + закінчення',L4:'Фрази з 3 частин',L5:'Повні фрази (до 5 частин)'},
+  lv:{L1:'Кілька великих плиток із найпотрібнішими словами: вода, їжа, туалет, болить. Для тих, кому потрібні прості картинки.',L2:'Теми, а всередині — уточнення: «Пити» → «Чай». Для тих, кому важко підбирати слова.',L3:'Тема → початок фрази («Я хочу…») → закінчення. Можна сказати й один початок.',L4:'Тема → початок → дія → предмет; зупинитися можна на будь-якому кроці.',L5:'Повні фрази до 5 частин з уточненням (коли, де, навіщо, чому), зокрема в минулому часі. Для тих, хто мислить і формулює як завжди.'},
+  s_profile:'Призначення: для кого налаштовано',pf_speak:'Не може говорити, але думає й пише як завжди',pf_words:'Важко підбирати слова',pf_pics:'Потрібні прості картинки',
+  pf_speak_d:'БАС, видалена гортань, трахеостома, ШВЛ, дизартрія. Відкривається «⌨️ Писати», плитки — повні фрази, без зайвих запитань.',
+  pf_words_d:'Афазія після інсульту. Плитки з темами й уточненнями, «Абетка», запитання «…?» перед озвученням.',
+  pf_pics_d:'Виражені порушення мислення чи розуміння, аутизм, ДЦП. Кілька великих плиток, «Так / Ні», мінімум кнопок.',
+  pf_note:'Призначення задає лише початкові налаштування. Усе можна змінити окремо; спосіб вибору (руки) налаштовується в «Керування й натискання».',
+  pf_apply:'Застосувати початкові налаштування для цього призначення? Зміняться: що відкривати під час запуску, складність плиток, «Говорити одразу», швидкі репліки й розмір плиток. Інші налаштування залишаться.',
+  su_title:'Для кого налаштовуємо застосунок?',su_note:'Це можна змінити пізніше: ⚙️ → «Основне» → «Призначення».',su_hands:'Як працюють руки?',su_hands_note:'Можна змінити пізніше: ⚙️ → «Керування й натискання».',
+  su_tap:'Торкання — без труднощів',su_tap_d:'Звичайні натискання.',su_hold:'Руки тремтять, бувають випадкові дотики',su_hold_d:'Вибір утриманням: кнопку треба потримати пів секунди.',
+  su_dwell:'Відривати палець важко',su_dwell_d:'Натискання затримкою: палець лежить на кнопці — вона спрацьовує сама.',su_scan:'Руки майже не працюють',su_scan_d:'Сканування: застосунок підсвічує кнопки по черзі, вибір — торкання будь-де або зовнішня кнопка.',
+  su_back:'← Назад',su_lang:'Мова',sm_profile:'для кого',
   m_title:'🎤 Говорить співрозмовник',mic_lbl:'Співрозмовник',aMic:'Говорить співрозмовник',aType:'Писати',
   g_mic:'🎤 Співрозмовник',
   ty_btn:'Писати',ty_title:'⌨️ Писати',ty_ph:'Натискайте літери або готові слова…',ty_say:'Сказати',ty_word:'Слово',ty_clr:'Очистити',
@@ -4815,6 +4847,19 @@ uk:{
 },
 ru:{
   title:'Мой голос',
+  s_level:'Сложность плиток',
+  lvl:{L1:'Простые слова',L2:'Категории и уточнения',L3:'Фразы: начало + окончание',L4:'Фразы из 3 частей',L5:'Полные фразы (до 5 частей)'},
+  lv:{L1:'Несколько крупных плиток с самыми нужными словами: вода, еда, туалет, больно. Для тех, кому нужны простые картинки.',L2:'Темы, а внутри — уточнения: «Пить» → «Чай». Для тех, кому трудно подбирать слова.',L3:'Тема → начало фразы («Я хочу…») → окончание. Можно сказать и одно начало.',L4:'Тема → начало → действие → предмет; остановиться можно на любом шаге.',L5:'Полные фразы до 5 частей с уточнением (когда, где, зачем, почему), в том числе в прошедшем времени. Для тех, кто думает и формулирует как всегда.'},
+  s_profile:'Назначение: для кого настроено',pf_speak:'Не может говорить, но думает и пишет как всегда',pf_words:'Трудно подбирать слова',pf_pics:'Нужны простые картинки',
+  pf_speak_d:'БАС, удалённая гортань, трахеостома, ИВЛ, дизартрия. Открывается «⌨️ Писать», плитки — полные фразы, без лишних вопросов.',
+  pf_words_d:'Афазия после инсульта. Плитки с темами и уточнениями, «Азбука», вопрос «…?» перед озвучкой.',
+  pf_pics_d:'Выраженные нарушения мышления или понимания, аутизм, ДЦП. Несколько крупных плиток, «Да / Нет», минимум кнопок.',
+  pf_note:'Назначение задаёт только начальные настройки. Всё можно изменить по отдельности; способ выбора (руки) настраивается в «Управление и нажатия».',
+  pf_apply:'Применить начальные настройки для этого назначения? Изменятся: что открывать при запуске, сложность плиток, «Говорить сразу», быстрые реплики и размер плиток. Остальные настройки останутся.',
+  su_title:'Для кого настраиваем приложение?',su_note:'Это можно изменить позже: ⚙️ → «Основное» → «Назначение».',su_hands:'Как работают руки?',su_hands_note:'Можно изменить позже: ⚙️ → «Управление и нажатия».',
+  su_tap:'Касание — без труда',su_tap_d:'Обычные нажатия.',su_hold:'Руки дрожат, бывают случайные касания',su_hold_d:'Выбор удержанием: кнопку нужно подержать полсекунды.',
+  su_dwell:'Отрывать палец трудно',su_dwell_d:'Нажатие задержкой: палец лежит на кнопке — она срабатывает сама.',su_scan:'Руки почти не работают',su_scan_d:'Сканирование: приложение подсвечивает кнопки по очереди, выбор — касание где угодно или внешняя кнопка.',
+  su_back:'← Назад',su_lang:'Язык',sm_profile:'для кого',
   m_title:'🎤 Говорит собеседник',mic_lbl:'Собеседник',aMic:'Говорит собеседник',aType:'Писать',
   g_mic:'🎤 Собеседник',
   ty_btn:'Писать',ty_title:'⌨️ Писать',ty_ph:'Нажимайте буквы или готовые слова…',ty_say:'Сказать',ty_word:'Слово',ty_clr:'Очистить',
@@ -4851,6 +4896,19 @@ ru:{
 },
 en:{
   title:'My Voice',
+  s_level:'Tile complexity',
+  lvl:{L1:'Simple words',L2:'Categories and details',L3:'Phrases: start + ending',L4:'3-part phrases',L5:'Full phrases (up to 5 parts)'},
+  lv:{L1:'A few large tiles with the most needed words: water, food, toilet, pain. For those who need simple pictures.',L2:'Topics with details inside: “Drink” → “Tea”. For those who find words hard.',L3:'Topic → start of the phrase (“I want…”) → ending. The start alone can be spoken too.',L4:'Topic → start → action → object; you can stop at any step.',L5:'Full phrases of up to 5 parts with details (when, where, why), including the past tense. For those who think and phrase things as usual.'},
+  s_profile:'Purpose: who it is set up for',pf_speak:'Cannot speak, but thinks and writes as usual',pf_words:'Finds words hard',pf_pics:'Needs simple pictures',
+  pf_speak_d:'ALS, laryngectomy, tracheostomy, ventilation, dysarthria. Opens on “⌨️ Type”, tiles are full phrases, no extra questions.',
+  pf_words_d:'Aphasia after a stroke. Tiles with topics and details, ABC, a “…?” question before speaking.',
+  pf_pics_d:'Marked thinking or understanding difficulties, autism, cerebral palsy. A few large tiles, “Yes / No”, few buttons.',
+  pf_note:'The purpose only sets the starting settings. Everything can be changed separately; the selection method (hands) is in “Controls and taps”.',
+  pf_apply:'Apply the starting settings for this purpose? These will change: what opens at start, tile complexity, “Speak immediately”, quick replies and tile size. Other settings stay.',
+  su_title:'Who are we setting the app up for?',su_note:'You can change this later: ⚙️ → “Main” → “Purpose”.',su_hands:'How do the hands work?',su_hands_note:'You can change this later: ⚙️ → “Controls and taps”.',
+  su_tap:'Tapping is easy',su_tap_d:'Normal taps.',su_hold:'Hands tremble, accidental touches happen',su_hold_d:'Hold to select: hold a button for half a second.',
+  su_dwell:'Lifting the finger is hard',su_dwell_d:'Dwell: a finger resting on a button selects it by itself.',su_scan:'Hands barely work',su_scan_d:'Scanning: the app highlights buttons one by one; select by touching anywhere or with an external switch.',
+  su_back:'← Back',su_lang:'Language',sm_profile:'for',
   m_title:'🎤 The other person speaks',mic_lbl:'Other person',aMic:'The other person speaks',aType:'Type',
   g_mic:'🎤 The other person',
   ty_btn:'Type',ty_title:'⌨️ Type',ty_ph:'Tap letters or ready words…',ty_say:'Say',ty_word:'Word',ty_clr:'Clear',
@@ -4889,6 +4947,8 @@ en:{
 /* Справка: новые пункты и замены. Ключи — как в HELP_KEYS. */
 const MV_HELP={
 uk:{
+  profile:['Призначення: для кого налаштовано',['Під час першого запуску застосунок питає, для кого його налаштовують, і як працюють руки. Змінити: ⚙️ → «Основне» → «Призначення».','«Не може говорити, але думає й пише як завжди» (БАС, видалена гортань, трахеостома, ШВЛ, дизартрія): відкривається «⌨️ Писати», плитки — повні фрази, фраза звучить одразу, без запитання «…?».','«Важко підбирати слова» (афазія): плитки з темами й уточненнями, «Абетка», запитання «…?» перед озвученням.','«Потрібні прості картинки» (виражені порушення мислення чи розуміння, аутизм, ДЦП): кілька великих плиток, «Так / Ні», без смуги реплік.','Призначення задає лише початкові налаштування: після вибору все можна змінити окремо. Руки (спосіб вибору) — окремо від призначення: людина може мислити як завжди, але керувати лише скануванням.']],
+  level:['Складність плиток (⚙️)',['Як влаштовані плитки на головному екрані. Це не оцінка людини: людина може мислити як завжди й обрати прості плитки, бо так швидше.','Прості слова — кілька великих плиток: вода, їжа, туалет, болить.','Категорії й уточнення — теми, а всередині уточнення.','Фрази: початок + закінчення — тема → «Я хочу…» → закінчення.','Фрази з 3 частин — «Я хочу» → «пити» → «чай».','Повні фрази — до п’яти частин з уточненням (коли, де, навіщо, чому), зокрема в минулому часі.']],
   about:['Для чого застосунок','«Мій голос» — голос для людини, яка розуміє мовлення, але не може говорити: після інсульту (тяжка афазія, апраксія), при БАС, ДЦП, аутизмі без мовлення, після видалення гортані, з трахеостомою чи на ШВЛ, при тяжкій дизартрії. Людина обирає плитку або пише фразу — телефон вимовляє її вголос. Мікрофон самій людині не потрібен. Усе працює без інтернету, дані залишаються на телефоні.'],
   start:['Швидкий старт',['Якщо людина читає й пише — натисніть угорі «⌨️ Писати»: літери, підказки слів, «🔊 Сказати». Щоб застосунок одразу відкривався там, виберіть це в ⚙️ → «⌨️ Писати і швидкі репліки».','Якщо читати важко — користуйтеся плитками на головному екрані: тема → фраза → «Так». Плитки можна змінити й додати фото в редакторі ✏️.','«✋ Так / Ні» на головному екрані — величезні кнопки «Так», «Ні», «Не знаю» та шкали болю й самопочуття.','Якщо руки слабкі — у ⚙️ → «Керування й натискання» виберіть «Вибір утриманням», «Натискання затримкою» або «Сканування».','Заповніть «🪪 Екстрену картку» і контакти близьких у ⚙️.']],
   top:['Кнопки вгорі',['🏠 — на головний екран.','⌨️ Писати — швидкий набір тексту з підказкою слів і «Мої фрази».','🔤 Абетка — знайти слово за першою літерою (для тих, кому важко писати по літерах).','🎤 — говорить співрозмовник: його мовлення з’являється великим текстом (якщо людина погано чує), там же «📋 Показати скопійоване».','⚙️ — налаштування. ❓ — довідка: на головному екрані — уся, в інших режимах — лише про цей режим, угорі «🎓 Навчання». ✏️ — редактор плиток (на головному екрані).','Мова фраз та озвучення й мова меню обираються в ⚙️ → «Основне».']],
@@ -4902,6 +4962,8 @@ uk:{
   card:['🪪 Екстрена картка',['Картка для лікаря чи перехожого: «Я не можу говорити, але все розумію…», ім’я, діагноз, ліки, алергія, номери близьких — що заповните. Заповнення: ⚙️ → «🪪 Екстрена картка».','Показати: кнопка «🪪 Картка» на головному екрані, на червоному екрані «Допомога» (сигнал при цьому замовкає) або з меню значка: утримайте значок застосунку на головному екрані телефона й виберіть «Екстрена картка». Відкрити картку з екрана блокування веб-застосунок не може.','«🔊 Прочитати вголос» вимовляє головний текст картки. Дані зберігаються лише на телефоні.']]
 },
 ru:{
+  profile:['Назначение: для кого настроено',['При первом запуске приложение спрашивает, для кого его настраивают и как работают руки. Изменить: ⚙️ → «Основное» → «Назначение».','«Не может говорить, но думает и пишет как всегда» (БАС, удалённая гортань, трахеостома, ИВЛ, дизартрия): открывается «⌨️ Писать», плитки — полные фразы, фраза звучит сразу, без вопроса «…?».','«Трудно подбирать слова» (афазия): плитки с темами и уточнениями, «Азбука», вопрос «…?» перед озвучкой.','«Нужны простые картинки» (выраженные нарушения мышления или понимания, аутизм, ДЦП): несколько крупных плиток, «Да / Нет», без полосы реплик.','Назначение задаёт только начальные настройки: после выбора всё можно изменить по отдельности. Руки (способ выбора) — отдельно от назначения: человек может думать как всегда, но управлять только сканированием.']],
+  level:['Сложность плиток (⚙️)',['Как устроены плитки на главном экране. Это не оценка человека: человек может думать как всегда и выбрать простые плитки, потому что так быстрее.','Простые слова — несколько крупных плиток: вода, еда, туалет, больно.','Категории и уточнения — темы, а внутри уточнения.','Фразы: начало + окончание — тема → «Я хочу…» → окончание.','Фразы из 3 частей — «Я хочу» → «пить» → «чай».','Полные фразы — до пяти частей с уточнением (когда, где, зачем, почему), в том числе в прошедшем времени.']],
   about:['Для чего приложение','«Мой голос» — голос для человека, который понимает речь, но не может говорить: после инсульта (тяжёлая афазия, апраксия), при БАС, ДЦП, аутизме без речи, после удаления гортани, с трахеостомой или на ИВЛ, при тяжёлой дизартрии. Человек выбирает плитку или пишет фразу — телефон произносит её вслух. Микрофон самому человеку не нужен. Всё работает без интернета, данные остаются на телефоне.'],
   start:['Быстрый старт',['Если человек читает и пишет — нажмите вверху «⌨️ Писать»: буквы, подсказки слов, «🔊 Сказать». Чтобы приложение сразу открывалось там, выберите это в ⚙️ → «⌨️ Писать и быстрые реплики».','Если читать трудно — пользуйтесь плитками на главном экране: тема → фраза → «Да». Плитки можно изменить и добавить фото в редакторе ✏️.','«✋ Да / Нет» на главном экране — огромные кнопки «Да», «Нет», «Не знаю» и шкалы боли и самочувствия.','Если руки слабые — в ⚙️ → «Управление и нажатия» выберите «Выбор удержанием», «Нажатие задержкой» или «Сканирование».','Заполните «🪪 Экстренную карточку» и контакты близких в ⚙️.']],
   top:['Кнопки вверху',['🏠 — на главный экран.','⌨️ Писать — быстрый набор текста с подсказкой слов и «Мои фразы».','🔤 Азбука — найти слово по первой букве (для тех, кому трудно писать по буквам).','🎤 — говорит собеседник: его речь появляется крупным текстом (если человек плохо слышит), там же «📋 Показать скопированное».','⚙️ — настройки. ❓ — справка: на главном экране — вся, в других режимах — только об этом режиме, вверху «🎓 Обучение». ✏️ — редактор плиток (на главном экране).','Язык фраз и озвучки и язык меню выбираются в ⚙️ → «Основное».']],
@@ -4915,6 +4977,8 @@ ru:{
   card:['🪪 Экстренная карточка',['Карточка для врача или прохожего: «Я не могу говорить, но всё понимаю…», имя, диагноз, лекарства, аллергия, номера близких — что заполните. Заполнение: ⚙️ → «🪪 Экстренная карточка».','Показать: кнопка «🪪 Карточка» на главном экране, на красном экране «Помощь» (сигнал при этом замолкает) или из меню значка: удерживайте значок приложения на главном экране телефона и выберите «Экстренная карточка». Открыть карточку с экрана блокировки веб-приложение не может.','«🔊 Прочитать вслух» произносит главный текст карточки. Данные хранятся только на телефоне.']]
 },
 en:{
+  profile:['Purpose: who it is set up for',['At first start the app asks who it is set up for and how the hands work. To change: ⚙️ → “Main” → “Purpose”.','“Cannot speak, but thinks and writes as usual” (ALS, laryngectomy, tracheostomy, ventilation, dysarthria): opens on “⌨️ Type”, tiles are full phrases, a phrase is spoken at once, without the “…?” question.','“Finds words hard” (aphasia): tiles with topics and details, ABC, a “…?” question before speaking.','“Needs simple pictures” (marked thinking or understanding difficulties, autism, cerebral palsy): a few large tiles, “Yes / No”, no quick replies strip.','The purpose only sets the starting settings; everything can be changed separately afterwards. Hands (the selection method) are separate from the purpose: a person may think as usual but control the app only by scanning.']],
+  level:['Tile complexity (⚙️)',['How the tiles on the home screen are built. This is not an assessment of the person: someone who thinks as usual may pick simple tiles because it is faster.','Simple words — a few large tiles: water, food, toilet, pain.','Categories and details — topics with details inside.','Phrases: start + ending — topic → “I want…” → ending.','3-part phrases — “I want” → “to drink” → “tea”.','Full phrases — up to five parts with details (when, where, why), including the past tense.']],
   about:['What the app is for','“My Voice” is a voice for a person who understands speech but cannot speak: after a stroke (severe aphasia, apraxia), with ALS, cerebral palsy, non-speaking autism, after a laryngectomy, with a tracheostomy or on a ventilator, with severe dysarthria. The person picks a tile or types a phrase, and the phone says it aloud. The person does not need the microphone. Everything works offline, and the data stays on the phone.'],
   start:['Quick start',['If the person can read and write, tap “⌨️ Type” at the top: letters, word suggestions, “🔊 Say”. To open the app there at start, choose it in ⚙️ → “⌨️ Typing and quick replies”.','If reading is hard, use the tiles on the home screen: topic → phrase → “Yes”. Tiles can be changed and given photos in the ✏️ editor.','“✋ Yes / No” on the home screen gives huge “Yes”, “No”, “I don’t know” buttons and pain and feeling scales.','If the hands are weak, choose “Hold to select”, “Dwell” or “Scanning” in ⚙️ → “Controls and taps”.','Fill in the “🪪 Emergency card” and the loved ones’ contacts in ⚙️.']],
   top:['Top buttons',['🏠 — home screen.','⌨️ Type — fast typing with word suggestions and “My phrases”.','🔤 ABC — find a word by its first letter (for those who find spelling hard).','🎤 — the other person speaks: their speech appears in large text (if the person is hard of hearing); “📋 Show copied text” is there too.','⚙️ — settings. ❓ — help: the whole help on the home screen, only this mode elsewhere, with “🎓 Tutorial” at the top. ✏️ — tile editor (on the home screen).','The phrase and voice language and the menu language are chosen in ⚙️ → “Main”.']],
@@ -4978,7 +5042,7 @@ for(const l of ['uk','ru','en'])Object.assign(U[l],MV[l]);
 /* ---------- Справка: убрать пункты о «Говорю я», заменить и добавить свои ---------- */
 (function(){
   const drop=['hear','ponline'];
-  const add=[['type','start'],['myph','type'],['quickbar','myph'],['yn','quickbar'],['card','yn'],['sel','touch']];   // [ключ, после какого]
+  const add=[['profile','about'],['type','start'],['myph','type'],['quickbar','myph'],['yn','quickbar'],['card','yn'],['sel','touch']];   // [ключ, после какого]
   const keys=HELP_KEYS.slice();
   for(const l of ['uk','ru','en']){
     const H=U[l].helpDoc,M=MV_HELP[l];let s=H.s.slice(),k=keys.slice();
@@ -5005,6 +5069,7 @@ if(![800,1200,1600,2000,3000].includes(+settings.dwellMs))settings.dwellMs=1200;
 settings.scanKeys=+settings.scanKeys===2?2:1;
 if(![1000,1500,2000,3000,4000].includes(+settings.scanMs))settings.scanMs=2000;settings.scanMs=+settings.scanMs;
 if(settings.start!=='type')settings.start='tiles';
+if(!['speak','words','pics'].includes(settings.profile))delete settings.profile;   // нет — спросить при запуске
 if(settings.kbLayout!=='qw')settings.kbLayout='abc';
 if(!settings.card||typeof settings.card!=='object')settings.card=JSON.parse(JSON.stringify(MV_DEF.card));
 ['name','main','dx','meds','allergy','notes'].forEach(k=>{settings.card[k]=String(settings.card[k]||'')});settings.card.sos=settings.card.sos!==false;
@@ -5342,6 +5407,58 @@ function cardOpen(){
 }
 function cardClose(){const d=$('#card');if(d){d.remove();return true}return false}
 
+/* ======================= Назначение (профиль) и первый запуск =======================
+   Назначение задаёт только начальные настройки; всё можно изменить потом по отдельности.
+   Руки (способ выбора) — отдельный вопрос: человек может мыслить как всегда, но управлять сканированием. */
+const PROFILES={
+  speak:{start:'type',level:'L5',quick:true,quickBar:true,size:'m'},
+  words:{start:'tiles',level:'L2',quick:false,quickBar:true,size:'m'},
+  pics:{start:'tiles',level:'L1',quick:false,quickBar:false,size:'l'}
+};
+function profileApply(p){
+  const d=PROFILES[p];if(!d)return;
+  const oldLevel=settings.level;
+  settings.profile=p;Object.assign(settings,d);
+  try{localStorage.setItem('mv.settings',JSON.stringify(settings))}catch(_){}
+  if(oldLevel!==settings.level){tree=ld(tk(),null)||getTreeForLevel();path=[];tyModelC=null}
+  applyUI();drawQuick();
+}
+function setupOpen(){
+  setupClose();
+  const d=h('div',null);d.id='setup';d.setAttribute('role','dialog');document.body.append(d);
+  setupDraw(1);
+}
+function setupClose(){const d=$('#setup');if(d){d.remove();return true}return false}
+function setupDraw(step){
+  const d=$('#setup');if(!d)return;d.textContent='';d.dataset.step=step;
+  const sc=h('div','suscroll');d.append(sc);
+  const opt=(ic,t,dd,fn,cls)=>{const b=h('button','suopt'+(cls?' '+cls:''),null,fn);const tx=h('span','sut');tx.append(h('b',null,t),h('small',null,dd));b.append(h('span','ic',ic),tx);sc.append(b);return b};
+  if(step===1){
+    const lr=h('div','sulang');
+    [['uk','Українська'],['ru','Русский'],['en','English']].forEach(([l,n])=>{
+      const b=h('button','sul'+(lang===l?' on':''),n,()=>{if(lang!==l){setLang(l);if(settings.uiLang!=='auto'){settings.uiLang='auto';saveSettings();applyI18n()}}setupDraw(1)});lr.append(b);
+    });
+    sc.append(lr,h('h2',null,uh('su_title')));
+    opt('⌨️',uh('pf_speak'),uh('pf_speak_d'),()=>{profileApply('speak');setupDraw(2)});
+    opt('💬',uh('pf_words'),uh('pf_words_d'),()=>{profileApply('words');setupDraw(2)});
+    opt('🖼️',uh('pf_pics'),uh('pf_pics_d'),()=>{profileApply('pics');setupDraw(2)});
+    sc.append(h('p','sunote',uh('su_note')));
+  }else{
+    sc.append(h('h2',null,uh('su_hands')));
+    const pick=m=>{settings.selMode=m;settings.holdSel=m==='hold';saveSettings();setupDone()};
+    opt('👆',uh('su_tap'),uh('su_tap_d'),()=>pick('tap'));
+    opt('✋',uh('su_hold'),uh('su_hold_d'),()=>pick('hold'));
+    opt('⏳',uh('su_dwell'),uh('su_dwell_d'),()=>pick('dwell'));
+    opt('🔦',uh('su_scan'),uh('su_scan_d'),()=>pick('scan'));
+    sc.append(h('p','sunote',uh('su_hands_note')));
+    const r=h('div','row');r.append(h('button','subk',uh('su_back'),()=>setupDraw(1)));d.append(r);
+  }
+}
+function setupDone(){
+  setupClose();scanApply();
+  if(settings.start==='type')tyOpen(false);else{mvLeave();path=[];render()}
+}
+
 /* ======================= Главный экран: ряд крупных кнопок ======================= */
 function mvHomeRow(m){
   const r=h('div','mvhome');
@@ -5352,6 +5469,7 @@ function mvHomeRow(m){
 
 /* ======================= Назад, переходы ======================= */
 function mvBack(){
+  if($('#setup')){if($('#setup').dataset.step==='2')setupDraw(1);return true}
   if(cardClose())return true;
   if(ynClose())return true;
   if(typeOn&&ov.style.display!=='flex'&&!sos()){
@@ -5400,6 +5518,7 @@ const SC={rows:[],lvl:'row',ri:-1,ii:-1,tm:null,loops:0,sig:'',busy:false,ac:nul
 const scanOn=()=>settings.selMode==='scan'&&!TOUR&&!['#help','#sett','#diary','#ed'].some(q=>{const e=$(q);return e&&e.style.display==='block'});
 function scanVis(e){if(!e.isConnected||e.disabled||e.closest('[hidden]'))return false;const cs=getComputedStyle(e);if(cs.display==='none'||cs.visibility==='hidden')return false;const r=e.getBoundingClientRect();return r.width>2&&r.height>2}
 function scanScopes(){
+  if($('#setup'))return [$('#setup')];
   if($('#bigShow'))return [$('#bigShow')];
   if($('#card'))return [$('#card')];
   if($('#yn'))return [$('#yn')];
@@ -5539,6 +5658,7 @@ function selSync(){
 const _settSum=settSum;
 settSum=function(g){
   switch(g){
+    case 'main':return selTxt('#setProfile')+' · '+selTxt('#setLang')+($('#setTourOffer').checked?' · 🎓':'');
     case 'touch':return uh('sm_selmode')+': '+selTxt('#setSelMode')+' · '+uh('sm_guard')+': '+selTxt('#setGuard')+' · '+selTxt('#setHand');
     case 'type':return uh($('#setStart').value==='type'?'sm_type_type':'sm_type_tiles')+' · '+selTxt('#setKbLayout')+' · '+uh('sm_quickbar')+': '+onOff('#setQuickBar')+($('#setAutoShow').checked?' · '+uh('sm_autoshow'):'');
     case 'card':return ['#setCardName','#setCardDx','#setCardMeds','#setCardAllergy','#setCardNotes','#setCardMain'].some(q=>$(q).value.trim())?uh('sm_card_on'):uh('sm_card_off');
@@ -5550,6 +5670,7 @@ settSum=function(g){
 function mvSettLoad(){
   $('#setSelMode').value=settings.selMode;$('#setDwell').value=String(settings.dwellMs);
   $('#setScanKeys').value=String(settings.scanKeys);$('#setScanMs').value=String(settings.scanMs);$('#setScanSound').checked=!!settings.scanSound;
+  $('#setProfile').value=settings.profile||'words';
   $('#setStart').value=settings.start;$('#setKbLayout').value=settings.kbLayout;
   $('#setQuickBar').checked=!!settings.quickBar;$('#setAutoShow').checked=!!settings.autoShow;
   const c=settings.card;
@@ -5557,6 +5678,7 @@ function mvSettLoad(){
   selSync();
 }
 function mvSettSave(){
+  settings.profile=$('#setProfile').value;
   settings.selMode=$('#setSelMode').value;settings.dwellMs=+$('#setDwell').value;
   settings.scanKeys=+$('#setScanKeys').value===2?2:1;settings.scanMs=+$('#setScanMs').value;settings.scanSound=$('#setScanSound').checked;
   settings.start=$('#setStart').value==='type'?'type':'tiles';settings.kbLayout=$('#setKbLayout').value==='qw'?'qw':'abc';
@@ -5570,6 +5692,12 @@ $('#settingsBtn').onclick=()=>{_openSett();mvSettLoad();if(typeOn)settSet('type'
 const _closeSett=$('#closeSettBtn').onclick;
 $('#closeSettBtn').onclick=()=>{mvSettSave();_closeSett();drawQuick();scanApply()};
 $('#setSelMode').addEventListener('change',selSync);
+// Смена назначения: по согласию подставить его начальные значения в форму (сохранятся по «Закрыть»)
+$('#setProfile').addEventListener('change',()=>{
+  const d=PROFILES[$('#setProfile').value];if(!d||!confirm(uh('pf_apply')))return;
+  $('#setStart').value=d.start;$('#setSeg').value=d.level;showLvNote();$('#setQuick').checked=d.quick;$('#setQuickBar').checked=d.quickBar;$('#setSize').value=d.size;
+  drawSettHeads();
+});
 $('#cardShowBtn').onclick=()=>{mvSettSave();try{localStorage.setItem('mv.settings',JSON.stringify(settings))}catch(_){}cardOpen()};
 const _applyI18n=applyI18n;
 applyI18n=function(){
@@ -5579,6 +5707,9 @@ applyI18n=function(){
   fill('#setScanKeys',[['1',uh('sk_1')],['2',uh('sk_2')]],String(settings.scanKeys));
   fill('#setScanMs',[1000,1500,2000,3000,4000].map(x=>[String(x),sec(x)]),String(settings.scanMs));
   fill('#setStart',[['tiles',uh('st_tiles')],['type',uh('st_type')]],settings.start);
+  fill('#setProfile',[['speak',uh('pf_speak')],['words',uh('pf_words')],['pics',uh('pf_pics')]],settings.profile||'words');
+  if($('#pfNote'))$('#pfNote').textContent=uh('pf_note');
+  if($('#setup'))setupDraw(+$('#setup').dataset.step||1);
   fill('#setKbLayout',[['abc',u('ty_lay_abc')],['qw',u('ty_lay_qw')]],settings.kbLayout);
   _applyI18n();
   $('#typeBtn').setAttribute('aria-label',uh('aType'));
@@ -5594,7 +5725,7 @@ helpCtx=function(){return typeOn?'type':_helpCtx()};
 const _helpCtxName=helpCtxName;
 helpCtxName=function(c){return c==='type'?u('ty_title').replace(/^⌨️\s*/,''):_helpCtxName(c)};
 const _tourQuiet=tourQuiet;
-tourQuiet=function(){return !$('#yn')&&!$('#card')&&_tourQuiet()};
+tourQuiet=function(){return !$('#yn')&&!$('#card')&&!$('#setup')&&_tourQuiet()};
 TOUR_STEPS.type=[
   {t:'y_box',el:()=>$('#tyBox')||$('#tyIn'),tap:1},
   {t:'y_kb',el:()=>$('.tykb .letters')||$('.tykb .rows'),tap:1},
@@ -5610,6 +5741,7 @@ TOUR_STEPS.type=[
 function mvStartup(){
   let o='';try{o=new URLSearchParams(location.search).get('open')||''}catch(_){}
   if(o){try{history.replaceState(null,'',location.pathname)}catch(_){}}
+  if(!settings.profile){render();setupOpen();return true}   // первый запуск: для кого настраиваем
   if(o==='type'){tyOpen(false);return true}
   if(o==='card'){render();cardOpen();return true}
   if(o==='yn'){render();ynOpen('yn');return true}

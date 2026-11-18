@@ -326,6 +326,24 @@ with sync_playwright() as p:
         check(f'no errors swipe {w}', not errs, errs)
         c.close()
 
+    # v9: в тёмной теме подсветка «По буквам» без яркой заливки, текст хорошо виден; в светлой — как было
+    LUM = """(sel=>{const p=s=>s.match(/[\\d.]+/g).slice(0,3).map(Number);
+const L=c=>{const v=p(c).map(x=>{x/=255;return x<=0.03928?x/12.92:Math.pow((x+0.055)/1.055,2.4)});return 0.2126*v[0]+0.7152*v[1]+0.0722*v[2]};
+const e=document.querySelector(sel),cs=getComputedStyle(e),bg=cs.backgroundColor;const a=L(cs.color),b=L(bg);
+return {bg:b,cr:(Math.max(a,b)+0.05)/(Math.min(a,b)+0.05)}})"""
+    for theme in ['dark', 'light']:
+        c, pg, errs = page(b, {'profile': 'words', 'theme': theme})
+        pg.click('#abcBtn'); pg.click('#pbNo'); pg.click('#pbYes')
+        for sel in ['#pbQ', '.pbl.cur']:
+            r = pg.evaluate(LUM + f"('{sel}')")
+            check(f'{theme} {sel} readable', r['cr'] >= 7, r)
+            check(f'{theme} {sel} background', (r['bg'] < 0.1) if theme == 'dark' else (r['bg'] > 0.4), r)
+        pg.evaluate('pbTop()'); pg.click('#pbYes'); pg.click('#pbNo')
+        r = pg.evaluate(LUM + "('.pbli.cur')")
+        check(f'{theme} list item readable', r['cr'] >= 7 and ((r['bg'] < 0.1) if theme == 'dark' else (r['bg'] > 0.4)), r)
+        check(f'{theme} highlight still visible', pg.evaluate("getComputedStyle(document.querySelector('.pbli.cur')).borderTopColor") != pg.evaluate("getComputedStyle(document.querySelector('.pbli:not(.cur)')).borderTopColor"))
+        c.close()
+
     # обучение на «По буквам»
     c, pg, errs = page(b, {'profile': 'words'}, extra="localStorage.setItem('mv.tour.seen',JSON.stringify({home:1,tiles:1,show:1,type:1}));")
     pg.click('#abcBtn'); pg.wait_for_timeout(900)

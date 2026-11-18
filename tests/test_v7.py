@@ -181,7 +181,7 @@ with sync_playwright() as p:
     pg.click('#ov .ans.yes')
     check('back on pb after said', pg.evaluate('pbOn'))
     # голос выключается
-    pg.click('.pbsub .tyb >> nth=1')
+    pg.click('#pbVoice')
     n0 = len(SP(pg)); pg.click('#pbNo')
     check('voice off', not pg.evaluate('settings.pbVoice') and len(SP(pg)) == n0)
     # задержка и сканирование не мешают помощнику
@@ -255,6 +255,76 @@ with sync_playwright() as p:
     check('words before phrases when typing', pg.inner_text('#pbQ').startswith('«'))
     check('phrases item after words', pg.evaluate("pbItems().findIndex(x=>x.k==='ph')") == pg.evaluate("pbItems().filter(x=>x.k==='w').length"))
     c.close()
+
+    # v8: «По буквам» — шаг назад, стереть слово, очистить
+    c, pg, errs = page(b, {'profile': 'words'})
+    pg.click('#abcBtn')
+    check('undo disabled at start', pg.is_disabled('#pbUndo') and pg.is_disabled('#pbDelW') and pg.is_disabled('#pbClr'))
+    pg.click('.pbrow >> nth=2 >> .pbl >> nth=4')      # Я
+    pg.click('.pbrow >> nth=0 >> .pbl >> nth=0')      # о
+    check('two letters', pg.evaluate('tyText') == 'Яо')
+    pg.click('#pbUndo')
+    check('step back removes wrong letter', pg.evaluate('tyText') == 'Я')
+    q = pg.inner_text('#pbQ')
+    pg.click('#pbYes') if q.startswith('«') else None
+    t = pg.evaluate('tyText')
+    check('word chosen', t.endswith(' ') and len(t) > 2, t)
+    pg.click('#pbUndo')
+    check('step back removes word', pg.evaluate('tyText') == 'Я')
+    pg.evaluate("pbMark();tyText='Я хочу пити ';pbTop()")
+    pg.click('#pbDelW')
+    check('delete word', pg.evaluate('tyText') == 'Я хочу ')
+    pg.click('#pbClr')
+    check('clear', pg.evaluate('tyText') == '' and pg.is_disabled('#pbClr'))
+    pg.click('#pbUndo')
+    check('clear undone', pg.evaluate('tyText') == 'Я хочу ')
+    pg.click('#pbUndo'); pg.click('#pbUndo')
+    check('several steps back', pg.evaluate('tyText') == 'Я', pg.evaluate('tyText'))
+    pg.wait_for_timeout(1200)
+    check('draft follows undo', json.loads(pg.evaluate("localStorage.getItem('mv.draft.uk')") or '{}').get('ty') == 'Я')
+    check('no errors undo', not errs, errs)
+    c.close()
+    for (w, hgt) in [(360, 640), (277, 492)]:
+        c, pg, errs = page(b, {'profile': 'words'}, 'ru', w, hgt)
+        pg.click('#abcBtn')
+        check(f'sub row fits {w}', pg.evaluate("[...document.querySelectorAll('.pbsub .tyb')].every(b=>{const r=b.getBoundingClientRect();return r.right<=innerWidth+1&&r.width>=34&&b.scrollWidth<=b.clientWidth+2})") and pg.locator('.pbsub .tyb').count() == 6)
+        c.close()
+
+    # v8: списки прокручиваются пальцем (жест по списку не «застревает»)
+    def swipe(pg, x, y, dy):
+        cdp = pg.context.new_cdp_session(pg)
+        cdp.send('Input.dispatchTouchEvent', {'type': 'touchStart', 'touchPoints': [{'x': x, 'y': y}]})
+        for k in range(1, 9):
+            pg.wait_for_timeout(16); cdp.send('Input.dispatchTouchEvent', {'type': 'touchMove', 'touchPoints': [{'x': x, 'y': y - dy * k / 8}]})
+        cdp.send('Input.dispatchTouchEvent', {'type': 'touchEnd', 'touchPoints': []}); pg.wait_for_timeout(400)
+    VIS = "(sel=>{const p=document.querySelector(sel).getBoundingClientRect(),m=document.querySelector('#main').getBoundingClientRect();const top=Math.max(p.top,m.top),bot=Math.min(p.bottom,m.bottom);return [p.x+p.width*0.6,(top+bot)/2+15]})"
+    for (w, hgt) in [(360, 640), (313, 556), (277, 492)]:
+        c = b.new_context(viewport={'width': w, 'height': hgt}, service_workers='block', has_touch=True, is_mobile=True)
+        c.add_init_script(INIT + "localStorage.setItem('mv.lang','uk');localStorage.setItem('mv.settings',JSON.stringify({profile:'words'}));localStorage.setItem('mv.myph.uk',JSON.stringify(Array.from({length:20},(_,i)=>'Моя фраза номер '+(i+1))));")
+        pg = c.new_page(); pg.set_default_timeout(5000); errs = []; pg.on('pageerror', lambda e: errs.append(str(e)))
+        pg.goto(URL); pg.wait_for_timeout(350)
+        pg.evaluate("$('#typeBtn').click()")
+        pg.evaluate("[...document.querySelectorAll('.tykb .letters .lt')].find(b=>b.textContent.startsWith('П')).click()"); pg.wait_for_timeout(150)
+        x, y = pg.evaluate(VIS + "('.tyfl')")
+        before = pg.evaluate("$('.tyfl').scrollTop+$('#main').scrollTop")
+        swipe(pg, x, y, 150)
+        check(f'word list scrolls by finger {w}', pg.evaluate("$('.tyfl').scrollTop+$('#main').scrollTop") > before + 50, pg.evaluate("[$('.tyfl').scrollTop,$('#main').scrollTop]"))
+        check(f'list header stays visible {w}', pg.evaluate("(()=>{const r=$('.tyflh').getBoundingClientRect(),h=$('.tyhead').getBoundingClientRect(),m=$('#main').getBoundingClientRect();return r.top>=h.bottom-1&&r.bottom<=m.bottom})()"))
+        check(f'words visible under header {w}', pg.evaluate("(()=>{const m=$('#main').getBoundingClientRect();return [...document.querySelectorAll('.tyflw .wd')].some(b=>{const r=b.getBoundingClientRect(),t=$('.tyfltop').getBoundingClientRect();return r.top>=t.bottom-1&&r.bottom<=m.bottom})})()"))
+        pg.evaluate("tyFL=null;tyMy=true;renderType()"); pg.wait_for_timeout(100)
+        x, y = pg.evaluate(VIS + "('.tymy')")
+        before = pg.evaluate("$('.tymy').scrollTop+$('#main').scrollTop")
+        swipe(pg, x, y, 150)
+        check(f'my phrases scroll by finger {w}', pg.evaluate("$('.tymy').scrollTop+$('#main').scrollTop") > before + 50)
+        # «По буквам» на низком экране: жест по таблице прокручивает
+        pg.evaluate("tyMy=false;pbOpen()"); pg.wait_for_timeout(100)
+        x, y = pg.evaluate(VIS + "('.pbboard')")
+        before = pg.evaluate("$('.pbboard').scrollTop+$('#main').scrollTop")
+        need = pg.evaluate("$('.pbboard').scrollHeight>$('.pbboard').clientHeight+5||$('#main').scrollHeight>$('#main').clientHeight+5")
+        swipe(pg, x, y, 120)
+        check(f'board scrolls by finger {w}', (not need) or pg.evaluate("$('.pbboard').scrollTop+$('#main').scrollTop") > before + 30)
+        check(f'no errors swipe {w}', not errs, errs)
+        c.close()
 
     # обучение на «По буквам»
     c, pg, errs = page(b, {'profile': 'words'}, extra="localStorage.setItem('mv.tour.seen',JSON.stringify({home:1,tiles:1,show:1,type:1}));")

@@ -36,15 +36,16 @@ with sync_playwright() as p:
         check(f'html none {w}', pg.evaluate("getComputedStyle(document.documentElement).overscrollBehaviorY") == 'none')
         check(f'body none {w}', pg.evaluate("getComputedStyle(document.body).overscrollBehaviorY") == 'none')
         check(f'html x unchanged {w}', pg.evaluate("getComputedStyle(document.documentElement).overscrollBehaviorX") == 'auto')
-        for sel in ['#main', '#ov', '#quick']:
+        for sel in ['#main', '#ov']:
             check(f'{sel} contain {w}', OB(pg, sel) == 'contain/contain', OB(pg, sel))
+        check(f'#quick contain x {w}', OB(pg, '#quick') == 'auto/contain', OB(pg, '#quick'))
         pg.click('#settingsBtn')
         check(f'.modal contain {w}', OB(pg, '#sett') == 'contain/contain')
         pg.click('#closeSettBtn')
         pg.click('#typeBtn')
         check(f'.tybox contain {w}', OB(pg, '.tybox') == 'contain/contain')
         pg.click('#tyMyBtn')
-        check(f'.tymy contain {w}', OB(pg, '.tymy') == 'contain/contain')
+        check(f'.tymy chains to screen {w}', OB(pg, '.tymy') == 'auto/auto')
         pg.evaluate("ynOpen('yn')")
         check(f'.ynbody contain {w}', OB(pg, '.ynbody') == 'contain/contain')
         pg.evaluate("ynClose();cardOpen()")
@@ -53,7 +54,13 @@ with sync_playwright() as p:
         check(f'.suscroll contain {w}', OB(pg, '.suscroll') == 'contain/contain')
         pg.evaluate("setupClose()")
         # все элементы с собственной прокруткой на экранах — с contain
-        bad = pg.evaluate("""[...document.querySelectorAll('*')].filter(e=>{const s=getComputedStyle(e);return e!==document.documentElement&&e!==document.body&&/(auto|scroll)/.test(s.overflowY+s.overflowX)&&s.overscrollBehaviorY!=='contain'}).map(e=>e.id||e.className)""")
+        # v8: списки внутри #main (слова на букву, «Мои фразы», таблица «По буквам») передают прокрутку экрану — это нужно, иначе жест «застревает»;
+        # горизонтальные полосы (#quick, уточнение буквой) — contain только по горизонтали
+        bad = pg.evaluate("""[...document.querySelectorAll('*')].filter(e=>{const s=getComputedStyle(e);if(e===document.documentElement||e===document.body)return false;
+          if(!/(auto|scroll)/.test(s.overflowY+s.overflowX))return false;
+          if(e.matches('.tyfl,.tymy,.pbboard'))return false;
+          if(e.matches('#quick,.tyfln,.tysug'))return s.overscrollBehaviorX!=='contain';
+          return s.overscrollBehaviorY!=='contain'}).map(e=>e.id||e.className)""")
         check(f'all scroll areas contain {w}', not bad, bad)
         check(f'no errors styles {w}', not errs, errs)
         c.close()

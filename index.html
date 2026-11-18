@@ -328,7 +328,10 @@ button.prs:not(.chip){transform:scale(.95);filter:brightness(1.25) saturate(1.15
    Обычная прокрутка не меняется. */
 html,body{overscroll-behavior-y:none}
 /* Свои прокручиваемые области: дойдя до края, прокрутка не передаётся странице */
-#main,#ov,.modal,#tourBox,.hbuild,#quick,.tybox,.tymy,.ynbody,.cdscroll,.suscroll,textarea{overscroll-behavior:contain}
+#main,#ov,.modal,#tourBox,.hbuild,.tybox,.ynbody,.cdscroll,.suscroll,textarea{overscroll-behavior:contain}
+/* Списки внутри #main (слова на букву, «Мои фразы», таблица «По буквам»): прокручиваются сами, а дойдя до края —
+   передают прокрутку экрану (#main). С contain жест по пустому списку «застревал» (v7, найдено пользователем). */
+#quick{overscroll-behavior-x:contain}
 /* ===================== «Мій голос»: шапка =====================
    Узкий экран: название строкой выше, ниже шесть кнопок 🏠 ⌨️ 🔤 🎤 ⚙️ ❓ (✏️ только на главном экране).
    Главный экран: 🏠 🎤 ⚙️ ❓ ✏️ в ряд, ниже крупные «⌨️ Писать» и «Азбука». */
@@ -394,7 +397,7 @@ body.typing.no-abc header{grid-template-areas:"home type mic set help"}
 .tyb.cl{flex:0 0 46px;font-size:20px}.tyb.op{flex:0 0 46px;font-size:22px}
 .tyb.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 .tyb.un{border-color:var(--accent)}
-.tymy{flex:1 1 auto;min-height:0;overflow-y:auto;border:2px solid var(--border);border-radius:16px;padding:4px 8px;background:var(--card-bg)}
+.tymy{flex:0 0 auto;min-height:0;overflow-y:auto;overscroll-behavior:auto;border:2px solid var(--border);border-radius:16px;padding:4px 8px;background:var(--card-bg)}
 .tymyr{display:flex;gap:6px;align-items:stretch;margin:6px 0}
 .tymyb{flex:1;min-width:0;min-height:56px;border-radius:14px;background:color-mix(in srgb,#B7791F 22%,var(--card-bg));border:2px solid #B7791F;text-align:left;padding:8px 12px;font-size:clamp(17px,5vw,21px);overflow-wrap:anywhere}
 .tymyr .mini{min-width:52px}
@@ -511,11 +514,11 @@ body.dwell button,body.dwell a.call{position:relative}
 .tykb.first .lt .dots{font-size:.55em;opacity:.75;margin-left:1px}
 .tykb .lt.fnk{flex:1.6 1 0;min-width:0;font-size:clamp(12px,3.6vw,16px);font-weight:700;background:var(--card-bg)}
 .tyb.fs{flex:0 0 46px;font-size:20px}
-.tyfl{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:6px;border:2px solid var(--border);border-radius:16px;padding:6px;background:var(--card-bg)}
+.tyfl{flex:0 0 auto;min-height:0;overflow-y:auto;overscroll-behavior:auto;display:flex;flex-direction:column;gap:6px;border:2px solid var(--border);border-radius:16px;padding:6px;background:var(--card-bg)}
 .tyflh{display:flex;gap:6px;align-items:center;flex:0 0 auto}
 .tyflh .tyb{flex:0 0 auto;padding:0 12px}
 .tyflp{flex:1;min-width:0;font-size:clamp(24px,7vw,32px);font-weight:900;text-align:center;overflow-wrap:anywhere}
-.tyfln{display:flex;gap:5px;overflow-x:auto;overscroll-behavior:contain;flex:0 0 auto;padding-bottom:2px}
+.tyfln{display:flex;gap:5px;overflow-x:auto;overscroll-behavior-x:contain;flex:0 0 auto;padding-bottom:2px}
 .tyfln .chip{flex:0 0 auto}
 .tyfln .chip{min-height:44px;min-width:52px;padding:0 10px;font-size:clamp(16px,4.6vw,19px);font-weight:800}
 .tyflw{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,max(110px,30vw)),1fr));gap:6px}
@@ -537,7 +540,10 @@ body.dwell button,body.dwell a.call{position:relative}
 .pbb.yes{background:#1F7A4D}.pbb.no{background:#B3261E}
 .pbsub{display:flex;gap:6px}
 .pbsub .tyb:last-child{flex:0 0 52px;font-size:20px}
-.pbboard{display:flex;flex-direction:column;gap:4px;padding:4px;border-radius:14px;border:2px solid var(--border);overflow-y:auto;overscroll-behavior:contain;flex:0 0 auto}
+.pbsub .tyb.ic{flex:0 0 52px;font-size:20px}
+.pbsub .tyb:disabled{opacity:.4}
+@media (max-width:440px){.pbsub .tyb .w{display:none}.pbsub .tyb{font-size:20px;flex:1 1 0}.pbsub .tyb.ic,.pbsub .tyb:last-child{flex:1 1 0}}
+.pbboard{display:flex;flex-direction:column;gap:4px;padding:4px;border-radius:14px;border:2px solid var(--border);overflow-y:auto;overscroll-behavior:auto;flex:0 0 auto}
 .pbboard>*{flex:0 0 auto}
 .pbrow{display:flex;gap:4px;border-radius:10px;padding:2px}
 .pbrow.cur{background:#F2B70555;outline:3px solid #F2B705}
@@ -559,6 +565,12 @@ body.pbmode #quick{display:none}
   .pbl{min-height:40px}
   .pbli{min-height:44px}
 }
+
+.tyfltop{position:sticky;top:-6px;z-index:2;margin:-6px -6px 0;padding:6px 6px 4px;background:var(--card-bg);display:flex;flex-direction:column;gap:6px;border-radius:14px 14px 0 0}
+.tywrap.panel #tySug,.tywrap.panel #tyAct,.tywrap.panel .tyopts{display:none}
+.tymyh{display:flex;align-items:center;gap:8px}
+.tymyh .tyb{flex:0 0 auto;padding:0 12px}
+.tymyh>span{flex:1;min-width:0}
 </style>
 </head>
 <body>
@@ -731,7 +743,7 @@ body.pbmode #quick{display:none}
 <div id="diary" class="modal"></div>
 
 <script>
-const APP_VERSION = 7;   // держите в соответствии с V = 'govorim-v70' в sw.js
+const APP_VERSION = 8;   // держите в соответствии с V = 'govorim-v70' в sw.js
 // Логин автора на GitHub: ссылки «Автор» и «Исходный код» в ⚙️ → «ℹ️ О приложении» (работают и в копиях на других сайтах).
 // Если оставить пустым, логин берётся из адреса <логин>.github.io.
 const APP_AUTHOR_GH = 'bispalov';
@@ -4905,7 +4917,7 @@ uk:{
   pb_btn:'По літерах',aPb:'По літерах з помічником',pb_title:'👁 По літерах з помічником',
   pb_hint:'Для помічника: прочитайте питання (або ввімкніть 🔊) і дочекайтеся знаку людини — моргання, кивок, погляд, як домовилися. Так — ✔, ні — ✖. Літеру можна й просто натиснути в таблиці.',
   pb_yes:'Так',pb_no:'Ні, далі',pb_up:'Вище',pb_voice:'Питати вголос',pb_empty:'Тут з’явиться фраза.',pb_word_q:'«{w}»?',pb_act:'Пробіл, стерти, сказати…',
-  pb_ph:'Готові фрази',pb_space:'Пробіл',pb_del:'Стерти літеру',pb_say:'Сказати фразу',pb_clr:'Очистити',pb_row_n:'Рядок {n}',pb_names:{'ь':'м’який знак',"'":'апостроф'},
+  pb_ph:'Готові фрази',pb_undo:'Крок назад',pb_delw:'Стерти слово',pb_space:'Пробіл',pb_del:'Стерти літеру',pb_say:'Сказати фразу',pb_clr:'Очистити',pb_row_n:'Рядок {n}',pb_names:{'ь':'м’який знак',"'":'апостроф'},
   sm_tyfirst:'за першою літерою',
   s_level:'Складність плиток',
   lvl:{L1:'Прості слова',L2:'Категорії й уточнення',L3:'Фрази: початок + закінчення',L4:'Фрази з 3 частин',L5:'Повні фрази (до 5 частин)'},
@@ -4962,7 +4974,7 @@ ru:{
   pb_btn:'По буквам',aPb:'По буквам с помощником',pb_title:'👁 По буквам с помощником',
   pb_hint:'Для помощника: прочитайте вопрос (или включите 🔊) и дождитесь знака человека — моргание, кивок, взгляд, как договорились. Да — ✔, нет — ✖. Букву можно и просто нажать в таблице.',
   pb_yes:'Да',pb_no:'Нет, дальше',pb_up:'Выше',pb_voice:'Спрашивать вслух',pb_empty:'Здесь появится фраза.',pb_word_q:'«{w}»?',pb_act:'Пробел, стереть, сказать…',
-  pb_ph:'Готовые фразы',pb_space:'Пробел',pb_del:'Стереть букву',pb_say:'Сказать фразу',pb_clr:'Очистить',pb_row_n:'Строка {n}',pb_names:{'ь':'мягкий знак','ъ':'твёрдый знак'},
+  pb_ph:'Готовые фразы',pb_undo:'Шаг назад',pb_delw:'Стереть слово',pb_space:'Пробел',pb_del:'Стереть букву',pb_say:'Сказать фразу',pb_clr:'Очистить',pb_row_n:'Строка {n}',pb_names:{'ь':'мягкий знак','ъ':'твёрдый знак'},
   sm_tyfirst:'по первой букве',
   s_level:'Сложность плиток',
   lvl:{L1:'Простые слова',L2:'Категории и уточнения',L3:'Фразы: начало + окончание',L4:'Фразы из 3 частей',L5:'Полные фразы (до 5 частей)'},
@@ -5018,7 +5030,7 @@ en:{
   pb_btn:'Letters',aPb:'Letter board with a helper',pb_title:'👁 Letter board with a helper',
   pb_hint:'For the helper: read the question (or turn on 🔊) and wait for the person’s sign — a blink, a nod, a look, as agreed. Yes — ✔, no — ✖. You can also just tap a letter in the table.',
   pb_yes:'Yes',pb_no:'No, next',pb_up:'Up',pb_voice:'Ask aloud',pb_empty:'The phrase will appear here.',pb_word_q:'“{w}”?',pb_act:'Space, delete, say…',
-  pb_ph:'Ready phrases',pb_space:'Space',pb_del:'Delete a letter',pb_say:'Say the phrase',pb_clr:'Clear',pb_row_n:'Row {n}',pb_names:{},
+  pb_ph:'Ready phrases',pb_undo:'Step back',pb_delw:'Delete word',pb_space:'Space',pb_del:'Delete a letter',pb_say:'Say the phrase',pb_clr:'Clear',pb_row_n:'Row {n}',pb_names:{},
   sm_tyfirst:'by first letter',
   s_level:'Tile complexity',
   lvl:{L1:'Simple words',L2:'Categories and details',L3:'Phrases: start + ending',L4:'3-part phrases',L5:'Full phrases (up to 5 parts)'},
@@ -5072,7 +5084,7 @@ en:{
 const MV_HELP={
 uk:{
   abc:['🔤 Слово за першою літерою (у «Писати»)',['Для тих, хто пам’ятає, з якої літери починається слово, і впізнає його очима, але написати повністю не може (часто при афазії). Окремого екрана «Абетка» більше немає — це режим екрана «⌨️ Писати».','Увімкнути: кнопка 🔤 у рядку над клавіатурою (або ⚙️ → «⌨️ Писати і швидкі репліки»). Тоді на літерах є «…»: натискання показує список слів на цю літеру — спершу ваші та ті, що зазвичай ідуть після попереднього слова, далі зі словника. Уточнити можна другою літерою (кнопки «ХО», «ХА»…), ⌫ стирає уточнення, «Літери» повертає клавіатуру.','Кнопка «я, в, на…» відкриває короткі службові слова (займенники, прийменники, інші). Якщо ввімкнено пошук слів онлайн — після двох літер у списку є 🌐.','Вибране слово додається до фрази; «🔊 Сказати» вимовляє її. Набране зберігається й після перезапуску.']],
-  pb:['👁 По літерах з помічником',['Для тих, хто не може натискати зовсім (БАС, параліч), але може подати знак — моргнути, кивнути, подивитися. Екран веде помічник (близька людина), а людина лише відповідає «так» чи «ні».','Застосунок по черзі питає: спершу можливі слова («хочу?»), потім «📋 Готові фрази?» — «Мої фрази» й теми плиток, а в них фрази (для частих потреб це найшвидше), потім рядки літер (найчастіші — першими), потім «Пробіл, стерти, сказати…». Помічник читає питання (або вмикає 🔊 «Питати вголос») і натискає ✔ «Так» чи ✖ «Ні, далі» за знаком людини. Після «так» на рядку питаються літери цього рядка.','«↩ Вище» — на рівень вище (до тем, до рядків). Тему, фразу чи літеру можна й просто натиснути у списку чи таблиці, якщо людина показує її поглядом.','Фраза та сама, що на «⌨️ Писати»: можна почати тут і закінчити там. «Сказати фразу» вимовляє її й показує у вікні «Сказано».']],
+  pb:['👁 По літерах з помічником',['Для тих, хто не може натискати зовсім (БАС, параліч), але може подати знак — моргнути, кивнути, подивитися. Екран веде помічник (близька людина), а людина лише відповідає «так» чи «ні».','Застосунок по черзі питає: спершу можливі слова («хочу?»), потім «📋 Готові фрази?» — «Мої фрази» й теми плиток, а в них фрази (для частих потреб це найшвидше), потім рядки літер (найчастіші — першими), потім «Пробіл, стерти, сказати…». Помічник читає питання (або вмикає 🔊 «Питати вголос») і натискає ✔ «Так» чи ✖ «Ні, далі» за знаком людини. Після «так» на рядку питаються літери цього рядка.','У ряду під ✔ / ✖: «↩ Вище» — на рівень вище (до тем, до рядків); «↶ Крок назад» скасовує останню зміну (літеру, слово, очищення — скільки завгодно кроків); «⌫» стирає останнє слово; «🗑» очищає фразу (її теж можна повернути «↶»). Тему, фразу чи літеру можна й просто натиснути у списку чи таблиці, якщо людина показує її поглядом.','Фраза та сама, що на «⌨️ Писати»: можна почати тут і закінчити там. «Сказати фразу» вимовляє її й показує у вікні «Сказано».']],
   resume:['Запуск з останнього екрана','Застосунок відкривається там, де його закрили: на «⌨️ Писати», «👁 По літерах», у розділі плиток або на 🎤 (мікрофон сам не вмикається). Так само після оновлення застосунку чи коли телефон вивантажив його з пам’яті. Набраний текст теж зберігається. Вимкнути: ⚙️ → «Головний екран і плитки» — тоді застосунок відкривається на головному екрані або на «Писати» (⚙️ → «⌨️ Писати і швидкі репліки»).'],
   profile:['Призначення: для кого налаштовано',['Під час першого запуску застосунок питає, для кого його налаштовують, і як працюють руки. Змінити: ⚙️ → «Основне» → «Призначення».','«Не може говорити, але думає й пише як завжди» (БАС, видалена гортань, трахеостома, ШВЛ, дизартрія): відкривається «⌨️ Писати», плитки — повні фрази, фраза звучить одразу, без запитання «…?».','«Важко підбирати слова» (афазія): плитки з темами й уточненнями, слово за першою літерою, запитання «…?» перед озвученням.','«Потрібні прості картинки» (виражені порушення мислення чи розуміння, аутизм, ДЦП): кілька великих плиток, «Так / Ні», без смуги реплік.','Призначення задає лише початкові налаштування: після вибору все можна змінити окремо. Руки (спосіб вибору) — окремо від призначення: людина може мислити як завжди, але керувати лише скануванням.']],
   level:['Складність плиток (⚙️)',['Як влаштовані плитки на головному екрані. Це не оцінка людини: людина може мислити як завжди й обрати прості плитки, бо так швидше.','Прості слова — кілька великих плиток: вода, їжа, туалет, болить.','Категорії й уточнення — теми, а всередині уточнення.','Фрази: початок + закінчення — тема → «Я хочу…» → закінчення.','Фрази з 3 частин — «Я хочу» → «пити» → «чай».','Повні фрази — до п’яти частин з уточненням (коли, де, навіщо, чому), зокрема в минулому часі.']],
@@ -5090,7 +5102,7 @@ uk:{
 },
 ru:{
   abc:['🔤 Слово по первой букве (в «Писать»)',['Для тех, кто помнит, с какой буквы начинается слово, и узнаёт его глазами, но написать целиком не может (часто при афазии). Отдельного экрана «Азбука» больше нет — это режим экрана «⌨️ Писать».','Включить: кнопка 🔤 в ряду над клавиатурой (или ⚙️ → «⌨️ Писать и быстрые реплики»). Тогда на буквах есть «…»: нажатие показывает список слов на эту букву — сначала ваши и те, что обычно идут после предыдущего слова, дальше из словаря. Уточнить можно второй буквой (кнопки «ХО», «ХА»…), ⌫ стирает уточнение, «Буквы» возвращает клавиатуру.','Кнопка «я, в, на…» открывает короткие служебные слова (местоимения, предлоги, другие). Если включён поиск слов онлайн — после двух букв в списке есть 🌐.','Выбранное слово добавляется во фразу; «🔊 Сказать» произносит её. Набранное сохраняется и после перезапуска.']],
-  pb:['👁 По буквам с помощником',['Для тех, кто не может нажимать совсем (БАС, паралич), но может подать знак — моргнуть, кивнуть, посмотреть. Экран ведёт помощник (близкий человек), а человек только отвечает «да» или «нет».','Приложение по очереди спрашивает: сначала возможные слова («хочу?»), потом «📋 Готовые фразы?» — «Мои фразы» и темы плиток, а в них фразы (для частых нужд это быстрее всего), потом строки букв (самые частые — первыми), потом «Пробел, стереть, сказать…». Помощник читает вопрос (или включает 🔊 «Спрашивать вслух») и нажимает ✔ «Да» или ✖ «Нет, дальше» по знаку человека. После «да» на строке спрашиваются буквы этой строки.','«↩ Выше» — на уровень выше (к темам, к строкам). Тему, фразу или букву можно и просто нажать в таблице, если человек показывает её взглядом.','Фраза та же, что на «⌨️ Писать»: можно начать здесь и закончить там. «Сказать фразу» произносит её и показывает в окне «Сказано».']],
+  pb:['👁 По буквам с помощником',['Для тех, кто не может нажимать совсем (БАС, паралич), но может подать знак — моргнуть, кивнуть, посмотреть. Экран ведёт помощник (близкий человек), а человек только отвечает «да» или «нет».','Приложение по очереди спрашивает: сначала возможные слова («хочу?»), потом «📋 Готовые фразы?» — «Мои фразы» и темы плиток, а в них фразы (для частых нужд это быстрее всего), потом строки букв (самые частые — первыми), потом «Пробел, стереть, сказать…». Помощник читает вопрос (или включает 🔊 «Спрашивать вслух») и нажимает ✔ «Да» или ✖ «Нет, дальше» по знаку человека. После «да» на строке спрашиваются буквы этой строки.','В ряду под ✔ / ✖: «↩ Выше» — на уровень выше (к темам, к строкам); «↶ Шаг назад» отменяет последнее изменение (букву, слово, очистку — сколько угодно шагов); «⌫» стирает последнее слово; «🗑» очищает фразу (её тоже можно вернуть «↶»). Тему, фразу или букву можно и просто нажать в таблице, если человек показывает её взглядом.','Фраза та же, что на «⌨️ Писать»: можно начать здесь и закончить там. «Сказать фразу» произносит её и показывает в окне «Сказано».']],
   resume:['Запуск с последнего экрана','Приложение открывается там, где его закрыли: на «⌨️ Писать», «👁 По буквам», в разделе плиток или на 🎤 (микрофон сам не включается). Так же после обновления приложения или когда телефон выгрузил его из памяти. Набранный текст тоже сохраняется. Выключить: ⚙️ → «Главный экран и плитки» — тогда приложение открывается на главном экране или на «Писать» (⚙️ → «⌨️ Писать и быстрые реплики»).'],
   profile:['Назначение: для кого настроено',['При первом запуске приложение спрашивает, для кого его настраивают и как работают руки. Изменить: ⚙️ → «Основное» → «Назначение».','«Не может говорить, но думает и пишет как всегда» (БАС, удалённая гортань, трахеостома, ИВЛ, дизартрия): открывается «⌨️ Писать», плитки — полные фразы, фраза звучит сразу, без вопроса «…?».','«Трудно подбирать слова» (афазия): плитки с темами и уточнениями, слово по первой букве, вопрос «…?» перед озвучкой.','«Нужны простые картинки» (выраженные нарушения мышления или понимания, аутизм, ДЦП): несколько крупных плиток, «Да / Нет», без полосы реплик.','Назначение задаёт только начальные настройки: после выбора всё можно изменить по отдельности. Руки (способ выбора) — отдельно от назначения: человек может думать как всегда, но управлять только сканированием.']],
   level:['Сложность плиток (⚙️)',['Как устроены плитки на главном экране. Это не оценка человека: человек может думать как всегда и выбрать простые плитки, потому что так быстрее.','Простые слова — несколько крупных плиток: вода, еда, туалет, больно.','Категории и уточнения — темы, а внутри уточнения.','Фразы: начало + окончание — тема → «Я хочу…» → окончание.','Фразы из 3 частей — «Я хочу» → «пить» → «чай».','Полные фразы — до пяти частей с уточнением (когда, где, зачем, почему), в том числе в прошедшем времени.']],
@@ -5108,7 +5120,7 @@ ru:{
 },
 en:{
   abc:['🔤 A word by its first letter (in “Type”)',['For those who remember which letter a word starts with and recognize it by sight but cannot spell it (common with aphasia). There is no separate ABC screen any more; this is a mode of the “⌨️ Type” screen.','Turn it on with the 🔤 button in the row above the keyboard (or ⚙️ → “⌨️ Typing and quick replies”). Letters then show “…”: a tap shows the list of words for that letter — your own words and those that usually follow the previous word first, then the dictionary. Narrow it down with the second letter (“HO”, “HA”…), ⌫ removes it, “Letters” returns to the keyboard.','The “I, in, on…” button opens short function words (pronouns, prepositions, others). If online word search is on, a 🌐 button appears in the list after two letters.','The chosen word is added to the phrase; “🔊 Say” speaks it. The typed text is kept even after a restart.']],
-  pb:['👁 Letter board with a helper',['For those who cannot tap at all (ALS, paralysis) but can give a sign — blink, nod, look. A helper (a loved one) runs the screen; the person only answers “yes” or “no”.','The app asks one by one: first possible words (“want?”), then “📋 Ready phrases?” — My phrases and the tile topics with their phrases (the fastest for everyday needs), then rows of letters (the most frequent first), then “Space, delete, say…”. The helper reads the question (or turns on 🔊 “Ask aloud”) and taps ✔ “Yes” or ✖ “No, next” following the person’s sign. After “yes” on a row, its letters are asked.','“↩ Up” goes one level up (to the topics, to the rows). A topic, phrase or letter can also be tapped in the table if the person shows it with their eyes.','The phrase is the same as on “⌨️ Type”: start here and finish there. “Say the phrase” speaks it and shows it in the “Said” window.']],
+  pb:['👁 Letter board with a helper',['For those who cannot tap at all (ALS, paralysis) but can give a sign — blink, nod, look. A helper (a loved one) runs the screen; the person only answers “yes” or “no”.','The app asks one by one: first possible words (“want?”), then “📋 Ready phrases?” — My phrases and the tile topics with their phrases (the fastest for everyday needs), then rows of letters (the most frequent first), then “Space, delete, say…”. The helper reads the question (or turns on 🔊 “Ask aloud”) and taps ✔ “Yes” or ✖ “No, next” following the person’s sign. After “yes” on a row, its letters are asked.','In the row under ✔ / ✖: “↩ Up” goes one level up (to the topics, to the rows); “↶ Step back” undoes the last change (a letter, a word, clearing — as many steps as needed); “⌫” deletes the last word; “🗑” clears the phrase (“↶” brings it back too). A topic, phrase or letter can also be tapped in the table if the person shows it with their eyes.','The phrase is the same as on “⌨️ Type”: start here and finish there. “Say the phrase” speaks it and shows it in the “Said” window.']],
   resume:['Start on the last screen','The app opens where it was closed: on “⌨️ Type”, the 👁 Letter board, in a tile section or on 🎤 (the microphone does not switch on by itself). The same after an app update or when the phone unloaded it from memory. The typed text is kept too. To turn it off: ⚙️ → “Home screen and tiles”; then the app opens on the home screen or on Type (⚙️ → “⌨️ Typing and quick replies”).'],
   profile:['Purpose: who it is set up for',['At first start the app asks who it is set up for and how the hands work. To change: ⚙️ → “Main” → “Purpose”.','“Cannot speak, but thinks and writes as usual” (ALS, laryngectomy, tracheostomy, ventilation, dysarthria): opens on “⌨️ Type”, tiles are full phrases, a phrase is spoken at once, without the “…?” question.','“Finds words hard” (aphasia): tiles with topics and details, first-letter word search, a “…?” question before speaking.','“Needs simple pictures” (marked thinking or understanding difficulties, autism, cerebral palsy): a few large tiles, “Yes / No”, no quick replies strip.','The purpose only sets the starting settings; everything can be changed separately afterwards. Hands (the selection method) are separate from the purpose: a person may think as usual but control the app only by scanning.']],
   level:['Tile complexity (⚙️)',['How the tiles on the home screen are built. This is not an assessment of the person: someone who thinks as usual may pick simple tiles because it is faster.','Simple words — a few large tiles: water, food, toilet, pain.','Categories and details — topics with details inside.','Phrases: start + ending — topic → “I want…” → ending.','3-part phrases — “I want” → “to drink” → “tea”.','Full phrases — up to five parts with details (when, where, why), including the past tense.']],
@@ -5472,7 +5484,9 @@ function tyRefresh(){
 function tyMyPanel(){
   const d=h('div','tymy');
   const a=tyMyList();
-  const hd=h('div','sec fh');hd.append(h('span',null,'📃 '+u('ty_my')));
+  const hd=h('div','sec fh tymyh');
+  const bk=h('button','tyb',null,()=>{tyMy=false;tyMyEdit=false;renderType()});bk.append(h('span',null,'⌨️ '+u('ty_fl_back')));bk.id='tyMyBack';
+  hd.append(bk,h('span',null,'📃 '+u('ty_my')));
   if(a.length){const eb=h('button','mini',tyMyEdit?'✔ '+u('ty_my_done'):'✏️',()=>{tyMyEdit=!tyMyEdit;renderType(true)});eb.setAttribute('aria-label',u('ty_my_edit'));hd.append(eb)}
   d.append(hd);
   if(!a.length){d.append(h('p','note',u('ty_my_empty')));return d}
@@ -5503,11 +5517,18 @@ function tyFit(){
   const kh=Math.max(lo,Math.min(hi,Math.floor(avail/rows)));
   kb.style.setProperty('--kh',kh+'px');
 }
-addEventListener('resize',()=>{if(typeOn)tyFit()});
+function tyPanelFit(){
+  const m=$('#main'),p=$('.tyfl,.tymy');if(!m||!p)return;
+  p.style.height='';
+  const mr=m.getBoundingClientRect(),pad=parseFloat(getComputedStyle(m).paddingBottom)||0;
+  const avail=Math.floor(mr.bottom-pad-(p.getBoundingClientRect().top+m.scrollTop-mr.top+mr.top)-4);
+  if(p.scrollHeight>avail)p.style.height=Math.max(180,avail)+'px';   // иначе панель по содержимому
+}
+addEventListener('resize',()=>{if(typeOn){tyFit();tyPanelFit()}if(pbOn)renderPb()});
 function renderType(keep){
   const m=$('#main'),st=keep?m.scrollTop:0;m.innerHTML='';
   $('#ttl').textContent=u('ty_title');
-  const w=h('div','tywrap'+(tyMy?' my':''));
+  const w=h('div','tywrap'+(tyMy?' my':'')+((tyMy||tyFL)&&!settings.tySys?' panel':''));   // panel: открыт список — подсказки и ряд кнопок скрыты, место словам
   const top=h('div','tytop');
   if(settings.tySys){
     const inp=h('textarea','tyin');inp.id='tyIn';inp.rows=2;inp.placeholder=u('ty_ph');inp.value=tyText;inp.setAttribute('autocapitalize','sentences');
@@ -5537,6 +5558,7 @@ function renderType(keep){
   m.append(w);
   tyRefresh();
   tyFit();
+  tyPanelFit();
   m.scrollTop=st;
   loadBundledLex(lang).then(()=>{if(typeOn){const s2=$('#tySug');if(s2)tySugFill(s2)}}).catch(()=>{});
 }
@@ -5581,7 +5603,7 @@ function tyFLPanel(){
   const pre=tyFL.pre,ws=tyFirstWords(pre);
   hd.append(h('span','tyflp',pre.toLocaleUpperCase(lang)+'…'));
   if(pre.length>1){const x=h('button','tyb cl','⌫',()=>{tyFL.pre=pre.slice(0,-1);renderType(true)});x.setAttribute('aria-label',u('ty_fl_del'));hd.append(x)}
-  d.append(hd);
+  const top=h('div','tyfltop');top.append(hd);d.append(top);   // заголовок и уточнение закреплены вверху списка
   // уточнение следующей буквой: только буквы, с которых продолжаются найденные слова
   const nx=new Map();tyFirstWords(pre,400).forEach(w=>{const c=w.charAt(pre.length);if(c&&/\p{L}/u.test(c))nx.set(c,(nx.get(c)||0)+1)});
   const al=[...(ALPHA_FULL[lang]||'')];
@@ -5589,7 +5611,7 @@ function tyFLPanel(){
   if(nl.length>1){
     const r=h('div','tyfln');
     nl.forEach(c=>r.append(h('button','chip',(pre+c).toLocaleUpperCase(lang),()=>{tyFL.pre=pre+c;renderType(true)})));
-    d.append(r);   // одна строка с прокруткой вбок — не занимает место слов
+    top.append(r);   // одна строка с прокруткой вбок — не занимает место слов
   }
   const g=h('div','tyflw');
   if(!ws.length)d.append(h('p','note',u('ty_fl_none')));
@@ -5609,8 +5631,13 @@ const PB_ROWS={
   en:['etaoin','shrdlc','umwfgy','pbvkjx',"qz'"]
 };
 let pbOn=false;
-const PBS={lvl:'top',i:0,row:-1,loops:0,stack:[]};   // lvl: top | row | act | ph (темы и фразы плиток, stack — путь) | my («Мои фразы»)
-function pbOpen(){closeOv();stopRec();abc=null;hearOn=false;path=[];typeOn=false;pbOn=true;PBS.lvl='top';PBS.i=0;PBS.loops=0;PBS.stack=[];render();pbAsk()}
+const PBS={lvl:'top',i:0,row:-1,loops:0,stack:[]};
+let pbHist=[];   // фраза до каждого изменения на «По буквам» — для «↶ Шаг назад»
+function pbMark(){pbHist.push(tyText);if(pbHist.length>50)pbHist.shift()}
+function pbUndo(){if(!pbHist.length)return;tyText=pbHist.pop();tyUndo=null;draftSave();pbTop()}
+function pbDelWord(){if(!tyText.trim())return;pbMark();tyText=tyText.replace(/\s+$/,'').replace(/[^\s]+$/,'');tyUndo=null;draftSave();pbTop()}
+function pbClear(){if(!tyText)return;pbMark();tyText='';tyUndo=null;draftSave();pbTop()}   // lvl: top | row | act | ph (темы и фразы плиток, stack — путь) | my («Мои фразы»)
+function pbOpen(){closeOv();stopRec();abc=null;hearOn=false;path=[];typeOn=false;pbOn=true;PBS.lvl='top';PBS.i=0;PBS.loops=0;PBS.stack=[];pbHist=[];render();pbAsk()}
 function pbPreds(){const {pre,prev}=tyCtx(tyText);return (pre||prev)?tySuggest(tyText,3):[]}
 function pbItems(){
   if(PBS.lvl==='row')return [...PB_ROWS[lang][PBS.row]].map(c=>({k:'l',c}));
@@ -5669,14 +5696,14 @@ function pbTop(){PBS.lvl='top';PBS.i=0;PBS.loops=0;PBS.stack=[];renderPb();pbAsk
 function pbYes(){
   const it=pbItems()[PBS.i];if(!it)return;
   switch(it.k){
-    case 'w':tyPick(it.w);return pbTop();
+    case 'w':pbMark();tyPick(it.w);draftSave();return pbTop();
     case 'r':PBS.lvl='row';PBS.row=it.i;PBS.i=0;PBS.loops=0;renderPb();return pbAsk();
-    case 'l':tyKey(it.c);return pbTop();
+    case 'l':pbMark();tyKey(it.c);draftSave();return pbTop();
     case 'act':PBS.lvl='act';PBS.i=0;PBS.loops=0;renderPb();return pbAsk();
-    case 'sp':tyKey(' ');return pbTop();
-    case 'del':tyBack();return pbTop();
-    case 'clr':tyClear();return pbTop();
-    case 'say':PBS.lvl='top';PBS.i=0;renderPb();return tySay();
+    case 'sp':pbMark();tyKey(' ');draftSave();return pbTop();
+    case 'del':pbMark();tyBack();draftSave();return pbTop();
+    case 'clr':return pbClear();
+    case 'say':pbMark();PBS.lvl='top';PBS.i=0;renderPb();return tySay();
     case 'ph':PBS.lvl='ph';PBS.stack=[];PBS.i=0;PBS.loops=0;renderPb();return pbAsk();
     case 'my':PBS.lvl='my';PBS.i=0;PBS.loops=0;renderPb();return pbAsk();
     case 'm':PBS.lvl='top';PBS.i=0;PBS.stack=[];renderPb();return tySayMy(it.p);
@@ -5704,11 +5731,16 @@ function renderPb(){
   const no=h('button','pbb no',null,pbNo);no.append(h('span','ic','✖'),h('span',null,u('pb_no')));no.id='pbNo';
   const yes=h('button','pbb yes',null,pbYes);yes.append(h('span','ic','✔'),h('span',null,u('pb_yes')));yes.id='pbYes';
   yn.append(no,yes);w.append(yn);
+  // один ряд: выше, шаг назад, стереть слово, очистить, голос, повторить вопрос (на узком экране — только значки)
   const sub=h('div','pbsub');
-  const up=h('button','tyb',null,pbUp);up.append(h('span',null,'↩ '+u('pb_up')));up.disabled=PBS.lvl==='top';
-  const vb=h('button','tyb'+(settings.pbVoice?' on':''),null,()=>{settings.pbVoice=!settings.pbVoice;saveSettings();renderPb();pbAsk()});vb.append(h('span',null,'🔊 '+u('pb_voice')));vb.setAttribute('aria-pressed',settings.pbVoice?'true':'false');
-  const rp=h('button','tyb',null,pbAsk);rp.append(h('span',null,'↻'));rp.setAttribute('aria-label',u('rep')||'↻');
-  sub.append(up,vb,rp);w.append(sub);
+  const sb=(ic,lbl,fn,cls,dis,id)=>{const b=h('button','tyb'+(cls?' '+cls:''),ic,fn);if(lbl){b.append(h('span','w',' '+lbl));b.setAttribute('aria-label',lbl)}if(dis)b.disabled=true;if(id)b.id=id;sub.append(b);return b};
+  sb('↩',u('pb_up'),pbUp,'',PBS.lvl==='top','pbUp');
+  sb('↶',u('pb_undo'),pbUndo,'',!pbHist.length,'pbUndo');
+  sb('⌫',u('pb_delw'),pbDelWord,'',!tyText.trim(),'pbDelW');
+  sb('🗑',u('pb_clr'),pbClear,'',!tyText,'pbClr');
+  const vb=sb('🔊',u('pb_voice'),()=>{settings.pbVoice=!settings.pbVoice;saveSettings();renderPb();pbAsk()},settings.pbVoice?'on':'',false,'pbVoice');vb.setAttribute('aria-pressed',settings.pbVoice?'true':'false');
+  sb('↻',null,pbAsk,'',false,'pbRep').setAttribute('aria-label',u('rep')||'↻');
+  w.append(sub);
   // таблица букв: текущая строка и буква подсвечены; букву можно нажать сразу
   const bd=h('div','pbboard');
   if(PBS.lvl==='ph'||PBS.lvl==='my'){
@@ -5716,7 +5748,7 @@ function renderPb(){
   }else PB_ROWS[lang].forEach((r,ri)=>{
     const row=h('div','pbrow'+((PBS.lvl==='row'&&PBS.row===ri)||(it&&it.k==='r'&&it.i===ri)?' cur':''));
     [...r].forEach(c=>{
-      const b=h('button','pbl'+(it&&it.k==='l'&&PBS.row===ri&&it.c===c?' cur':''),c==="'"?'’':c.toLocaleUpperCase(lang),()=>{tyKey(c);pbTop()});
+      const b=h('button','pbl'+(it&&it.k==='l'&&PBS.row===ri&&it.c===c?' cur':''),c==="'"?'’':c.toLocaleUpperCase(lang),()=>{pbMark();tyKey(c);draftSave();pbTop()});
       row.append(b);
     });
     bd.append(row);

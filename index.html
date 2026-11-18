@@ -446,6 +446,12 @@ body.typing.no-abc header{grid-template-areas:"home type mic set help"}
 #card .row{flex:0 0 auto;margin-top:8px}
 .cdb{flex:1 1 140px;min-height:60px;border-radius:16px;background:#1E3A8A;color:#fff;font-weight:800;font-size:clamp(17px,5vw,21px)}
 .cdb.x{background:#4B5563}
+/* Карточка «как тема приложения» (настройка): цвета темы, контраст сохраняется */
+#card.app{background:var(--bg);color:var(--ink)}
+#card.app .cdh{color:#F2655F}
+[data-theme="light"] #card.app .cdh{color:#B3261E}
+#card.app .cdl,#card.app .cdnote{color:var(--ink);opacity:.75}
+#card.app .cdf{border-top-color:var(--border)}
 #ov .cardbtn{flex:0 0 auto;width:100%;min-height:64px;font-size:clamp(18px,5.4vw,22px)}
 
 /* Нажатие задержкой: полоска та же, что у «выбора удержанием» */
@@ -567,6 +573,7 @@ body.dwell button,body.dwell a.call{position:relative}
     <label data-i="s_c_allergy"></label><input type="text" id="setCardAllergy" autocomplete="off">
     <label data-i="s_c_notes"></label><textarea id="setCardNotes" rows="2"></textarea>
     <label class="chk"><input type="checkbox" id="setCardSos"><span data-i="s_c_sos"></span></label>
+    <label data-i="s_c_theme"></label><select id="setCardTheme"></select>
     <button type="button" class="wide" id="cardShowBtn" data-i="b_c_show"></button>
   </div></div>
   <div class="sg" data-g="voice"><button class="sgh" type="button" data-t="g_voice"></button><div class="sgb">
@@ -669,7 +676,7 @@ body.dwell button,body.dwell a.call{position:relative}
 <div id="diary" class="modal"></div>
 
 <script>
-const APP_VERSION = 5;   // держите в соответствии с V = 'govorim-v70' в sw.js
+const APP_VERSION = 6;   // держите в соответствии с V = 'govorim-v70' в sw.js
 // Логин автора на GitHub: ссылки «Автор» и «Исходный код» в ⚙️ → «ℹ️ О приложении» (работают и в копиях на других сайтах).
 // Если оставить пустым, логин берётся из адреса <логин>.github.io.
 const APP_AUTHOR_GH = 'bispalov';
@@ -4853,7 +4860,7 @@ uk:{
   ty_btn:'Писати',ty_title:'⌨️ Писати',ty_ph:'Натискайте літери або готові слова…',ty_say:'Сказати',ty_word:'Слово',ty_clr:'Очистити',
   ty_save:'Зберегти',ty_saved:'Збережено в «Мої фрази»',ty_have:'Ця фраза вже є в «Моїх фразах»',ty_my:'Мої фрази',ty_my_empty:'Тут будуть ваші фрази. Наберіть фразу й натисніть «⭐ Зберегти».',
   ty_my_edit:'Змінити список',ty_my_done:'Готово',ty_my_del:'Прибрати фразу',ty_my_up:'Вище',ty_space:'пробіл',ty_123:'123',ty_letters:'АБВ',
-  ty_lay_abc:'АБВ',ty_lay_qw:'ЙЦУКЕН',ty_sys:'Клавіатура телефона',ty_own:'Клавіатура застосунку',ty_next:'Наступне слово:',sz_s:'Маленький (3–4 в ряд)',sz_m:'Звичайний (по дві в ряд)',sz_l:'Великий (по дві, вищі)',sz_xl:'Дуже великий (по одній у ряд)',ty_onl_back:'Назад до підказок',s_resume:'Під час запуску відкривати екран, на якому закінчили (⌨️ «Писати», «Абетку», розділ плиток, 🎤)',s_saved_now:'Зміни зберігаються одразу.',ty_more:'Ще: розкладка, розмір, клавіатура телефона',ty_sug:'Підказки:',
+  ty_lay_abc:'АБВ',ty_lay_qw:'ЙЦУКЕН',ty_sys:'Клавіатура телефона',ty_own:'Клавіатура застосунку',ty_next:'Наступне слово:',s_c_theme:'Вигляд картки',ct_light:'Завжди світла — чорний текст на білому (найкраще читається іншими, на сонці)',ct_app:'Як тема застосунку (у темній темі — темна)',sz_s:'Маленький (3–4 в ряд)',sz_m:'Звичайний (по дві в ряд)',sz_l:'Великий (по дві, вищі)',sz_xl:'Дуже великий (по одній у ряд)',ty_onl_back:'Назад до підказок',s_resume:'Під час запуску відкривати екран, на якому закінчили (⌨️ «Писати», «Абетку», розділ плиток, 🎤)',s_saved_now:'Зміни зберігаються одразу.',ty_more:'Ще: розкладка, розмір, клавіатура телефона',ty_sug:'Підказки:',
   q_bar:['Зачекайте, я пишу…','Повторіть, будь ласка','Я не розумію','Дякую','Так, але…'],
   hm_yn:'Так / Ні',hm_my:'Мої фрази',hm_card:'Картка',
   yn_t_yn:'Так / Ні',yn_t_pain:'Біль',yn_t_well:'Самопочуття',dk_w:'Не знаю',
@@ -4903,7 +4910,7 @@ ru:{
   ty_btn:'Писать',ty_title:'⌨️ Писать',ty_ph:'Нажимайте буквы или готовые слова…',ty_say:'Сказать',ty_word:'Слово',ty_clr:'Очистить',
   ty_save:'Сохранить',ty_saved:'Сохранено в «Мои фразы»',ty_have:'Эта фраза уже есть в «Моих фразах»',ty_my:'Мои фразы',ty_my_empty:'Здесь будут ваши фразы. Наберите фразу и нажмите «⭐ Сохранить».',
   ty_my_edit:'Изменить список',ty_my_done:'Готово',ty_my_del:'Убрать фразу',ty_my_up:'Выше',ty_space:'пробел',ty_123:'123',ty_letters:'АБВ',
-  ty_lay_abc:'АБВ',ty_lay_qw:'ЙЦУКЕН',ty_sys:'Клавиатура телефона',ty_own:'Клавиатура приложения',ty_next:'Следующее слово:',sz_s:'Маленький (3–4 в ряд)',sz_m:'Обычный (по две в ряд)',sz_l:'Крупный (по две, выше)',sz_xl:'Очень крупный (по одной в ряд)',ty_onl_back:'Назад к подсказкам',s_resume:'При запуске открывать экран, на котором закончили (⌨️ «Писать», «Азбуку», раздел плиток, 🎤)',s_saved_now:'Изменения сохраняются сразу.',ty_more:'Ещё: раскладка, размер, клавиатура телефона',ty_sug:'Подсказки:',
+  ty_lay_abc:'АБВ',ty_lay_qw:'ЙЦУКЕН',ty_sys:'Клавиатура телефона',ty_own:'Клавиатура приложения',ty_next:'Следующее слово:',s_c_theme:'Вид карточки',ct_light:'Всегда светлая — чёрный текст на белом (лучше всего читается другими, на солнце)',ct_app:'Как тема приложения (в тёмной теме — тёмная)',sz_s:'Маленький (3–4 в ряд)',sz_m:'Обычный (по две в ряд)',sz_l:'Крупный (по две, выше)',sz_xl:'Очень крупный (по одной в ряд)',ty_onl_back:'Назад к подсказкам',s_resume:'При запуске открывать экран, на котором закончили (⌨️ «Писать», «Азбуку», раздел плиток, 🎤)',s_saved_now:'Изменения сохраняются сразу.',ty_more:'Ещё: раскладка, размер, клавиатура телефона',ty_sug:'Подсказки:',
   q_bar:['Подождите, я пишу…','Повторите, пожалуйста','Я не понимаю','Спасибо','Да, но…'],
   hm_yn:'Да / Нет',hm_my:'Мои фразы',hm_card:'Карточка',
   yn_t_yn:'Да / Нет',yn_t_pain:'Боль',yn_t_well:'Самочувствие',dk_w:'Не знаю',
@@ -4952,7 +4959,7 @@ en:{
   ty_btn:'Type',ty_title:'⌨️ Type',ty_ph:'Tap letters or ready words…',ty_say:'Say',ty_word:'Word',ty_clr:'Clear',
   ty_save:'Save',ty_saved:'Saved to “My phrases”',ty_have:'This phrase is already in “My phrases”',ty_my:'My phrases',ty_my_empty:'Your phrases will be here. Type a phrase and tap “⭐ Save”.',
   ty_my_edit:'Edit the list',ty_my_done:'Done',ty_my_del:'Remove the phrase',ty_my_up:'Up',ty_space:'space',ty_123:'123',ty_letters:'ABC',
-  ty_lay_abc:'ABC',ty_lay_qw:'QWERTY',ty_sys:'Phone keyboard',ty_own:'App keyboard',ty_next:'Next word:',sz_s:'Small (3–4 per row)',sz_m:'Normal (two per row)',sz_l:'Large (two per row, taller)',sz_xl:'Extra large (one per row)',ty_onl_back:'Back to suggestions',s_resume:'On start, open the screen you finished on (⌨️ Type, ABC, a tile section, 🎤)',s_saved_now:'Changes are saved at once.',ty_more:'More: layout, size, phone keyboard',ty_sug:'Suggestions:',
+  ty_lay_abc:'ABC',ty_lay_qw:'QWERTY',ty_sys:'Phone keyboard',ty_own:'App keyboard',ty_next:'Next word:',s_c_theme:'Card look',ct_light:'Always light — black text on white (easiest for others to read, also in sunlight)',ct_app:'Follow the app theme (dark in the dark theme)',sz_s:'Small (3–4 per row)',sz_m:'Normal (two per row)',sz_l:'Large (two per row, taller)',sz_xl:'Extra large (one per row)',ty_onl_back:'Back to suggestions',s_resume:'On start, open the screen you finished on (⌨️ Type, ABC, a tile section, 🎤)',s_saved_now:'Changes are saved at once.',ty_more:'More: layout, size, phone keyboard',ty_sug:'Suggestions:',
   q_bar:['Wait, I’m typing…','Please repeat','I don’t understand','Thank you','Yes, but…'],
   hm_yn:'Yes / No',hm_my:'My phrases',hm_card:'Card',
   yn_t_yn:'Yes / No',yn_t_pain:'Pain',yn_t_well:'Feeling',dk_w:'I don’t know',
@@ -4998,7 +5005,7 @@ uk:{
   quickbar:['Швидкі репліки',['Смуга над нижньою панеллю: «Зачекайте, я пишу…», «Повторіть, будь ласка», «Я не розумію», «Дякую», «Так, але…». Натискання вимовляє репліку одразу, без запитання. Співрозмовник чує, що людина відповідає, і не перебиває.','Смугу можна прибрати в ⚙️ → «⌨️ Писати і швидкі репліки». Якщо реплік більше, ніж уміщається, смугу можна гортати пальцем.']],
   sel:['Спосіб вибору: утримання, затримка, сканування',['У ⚙️ → «Керування й натискання» → «Спосіб вибору».','Звичайне торкання — як зазвичай.','Вибір утриманням — кнопку треба втримати близько пів секунди; допомагає при треморі й випадкових дотиках.','Натискання затримкою — палець, стилус чи курсор лежить на кнопці, і вона спрацьовує за обраний час (0,8–3 с) без відривання; тремтіння пальця не заважає. Жовта смужка показує, скільки лишилося.','Сканування — для тих, у кого руки майже не працюють. Застосунок по черзі підсвічує рядки кнопок (жовта рамка), потім кнопки в обраному рядку. Вибір — торкання будь-якого місця екрана або зовнішня кнопка. Одна кнопка: перебір іде сам зі швидкістю, яку ви обрали. Дві кнопки: «Далі» — Пробіл, → або ↓; «Вибрати» — Enter (так працюють більшість Bluetooth-кнопок для людей з інвалідністю). Якщо в рядку нічого не вибрано за два кола, підсвітка повертається до рядків.','Усередині налаштувань, довідки й редактора завжди працює звичайне торкання — для близьких; відкрити їх (⚙️, ❓, ✏️) можна тим самим способом вибору: затримкою або скануванням.']],
   yn:['✋ Так / Ні на весь екран і шкали',['Кнопка «✋ Так / Ні» на головному екрані відкриває три величезні кнопки: «Так», «Ні», «Не знаю». Для тих, кому важко навіть з плитками. Натискання вимовляє відповідь.','Вкладка «🤕 Біль» — шкала 0–10 (0 — не болить, 10 — нестерпний біль): телефон скаже «Мій біль — 7 з 10». Вкладка «🙂 Самопочуття» — так само 0–10 (0 — дуже погано, 10 — чудово). Де саме болить — плитка «Болить» на нижній панелі.','Закрити — «✕» або «Назад».']],
-  card:['🪪 Екстрена картка',['Картка для лікаря чи перехожого: «Я не можу говорити, але все розумію…», ім’я, діагноз, ліки, алергія, номери близьких — що заповните. Заповнення: ⚙️ → «🪪 Екстрена картка».','Показати: кнопка «🪪 Картка» на головному екрані, на червоному екрані «Допомога» (сигнал при цьому замовкає) або з меню значка: утримайте значок застосунку на головному екрані телефона й виберіть «Екстрена картка». Відкрити картку з екрана блокування веб-застосунок не може.','«🔊 Прочитати вголос» вимовляє головний текст картки. Дані зберігаються лише на телефоні.']]
+  card:['🪪 Екстрена картка',['Картка для лікаря чи перехожого: «Я не можу говорити, але все розумію…», ім’я, діагноз, ліки, алергія, номери близьких — що заповните. Заповнення: ⚙️ → «🪪 Екстрена картка».','Показати: кнопка «🪪 Картка» на головному екрані, на червоному екрані «Допомога» (сигнал при цьому замовкає) або з меню значка: утримайте значок застосунку на головному екрані телефона й виберіть «Екстрена картка». Відкрити картку з екрана блокування веб-застосунок не може.','«🔊 Прочитати вголос» вимовляє головний текст картки. Дані зберігаються лише на телефоні.','Картка за замовчуванням завжди світла — чорний текст на білому: так її найкраще прочитає лікар чи перехожий, і на сонці теж. Якщо білий екран заважає (наприклад, вечорами в темній темі), у ⚙️ → «🪪 Екстрена картка» → «Вигляд картки» виберіть «Як тема застосунку».']]
 },
 ru:{
   resume:['Запуск с последнего экрана','Приложение открывается там, где его закрыли: на «⌨️ Писать», в «Азбуке», в разделе плиток или на 🎤 (микрофон сам не включается). Так же после обновления приложения или когда телефон выгрузил его из памяти. Набранный текст и собранная строка «Азбуки» тоже сохраняются. Выключить: ⚙️ → «Главный экран и плитки» — тогда приложение открывается на главном экране или на «Писать» (⚙️ → «⌨️ Писать и быстрые реплики»).'],
@@ -5014,7 +5021,7 @@ ru:{
   quickbar:['Быстрые реплики',['Полоса над нижней панелью: «Подождите, я пишу…», «Повторите, пожалуйста», «Я не понимаю», «Спасибо», «Да, но…». Нажатие произносит реплику сразу, без вопроса. Собеседник слышит, что человек отвечает, и не перебивает.','Полосу можно убрать в ⚙️ → «⌨️ Писать и быстрые реплики». Если реплик больше, чем помещается, полосу можно листать пальцем.']],
   sel:['Способ выбора: удержание, задержка, сканирование',['В ⚙️ → «Управление и нажатия» → «Способ выбора».','Обычное касание — как обычно.','Выбор удержанием — кнопку нужно удержать около полсекунды; помогает при треморе и случайных касаниях.','Нажатие задержкой — палец, стилус или курсор лежит на кнопке, и она срабатывает через выбранное время (0,8–3 с) без отрыва; дрожание пальца не мешает. Жёлтая полоска показывает, сколько осталось.','Сканирование — для тех, у кого руки почти не работают. Приложение по очереди подсвечивает строки кнопок (жёлтая рамка), затем кнопки в выбранной строке. Выбор — касание любого места экрана или внешняя кнопка. Одна кнопка: перебор идёт сам с выбранной скоростью. Две кнопки: «Дальше» — Пробел, → или ↓; «Выбрать» — Enter (так работает большинство Bluetooth-кнопок для людей с инвалидностью). Если в строке ничего не выбрано за два круга, подсветка возвращается к строкам.','Внутри настроек, справки и редактора всегда работает обычное касание — для близких; открыть их (⚙️, ❓, ✏️) можно тем же способом выбора: задержкой или сканированием.']],
   yn:['✋ Да / Нет на весь экран и шкалы',['Кнопка «✋ Да / Нет» на главном экране открывает три огромные кнопки: «Да», «Нет», «Не знаю». Для тех, кому трудно даже с плитками. Нажатие произносит ответ.','Вкладка «🤕 Боль» — шкала 0–10 (0 — не болит, 10 — невыносимая боль): телефон скажет «Моя боль — 7 из 10». Вкладка «🙂 Самочувствие» — так же 0–10 (0 — очень плохо, 10 — отлично). Где именно болит — плитка «Болит» на нижней панели.','Закрыть — «✕» или «Назад».']],
-  card:['🪪 Экстренная карточка',['Карточка для врача или прохожего: «Я не могу говорить, но всё понимаю…», имя, диагноз, лекарства, аллергия, номера близких — что заполните. Заполнение: ⚙️ → «🪪 Экстренная карточка».','Показать: кнопка «🪪 Карточка» на главном экране, на красном экране «Помощь» (сигнал при этом замолкает) или из меню значка: удерживайте значок приложения на главном экране телефона и выберите «Экстренная карточка». Открыть карточку с экрана блокировки веб-приложение не может.','«🔊 Прочитать вслух» произносит главный текст карточки. Данные хранятся только на телефоне.']]
+  card:['🪪 Экстренная карточка',['Карточка для врача или прохожего: «Я не могу говорить, но всё понимаю…», имя, диагноз, лекарства, аллергия, номера близких — что заполните. Заполнение: ⚙️ → «🪪 Экстренная карточка».','Показать: кнопка «🪪 Карточка» на главном экране, на красном экране «Помощь» (сигнал при этом замолкает) или из меню значка: удерживайте значок приложения на главном экране телефона и выберите «Экстренная карточка». Открыть карточку с экрана блокировки веб-приложение не может.','«🔊 Прочитать вслух» произносит главный текст карточки. Данные хранятся только на телефоне.','Карточка по умолчанию всегда светлая — чёрный текст на белом: так её лучше всего прочитает врач или прохожий, и на солнце тоже. Если белый экран мешает (например, вечером в тёмной теме), в ⚙️ → «🪪 Экстренная карточка» → «Вид карточки» выберите «Как тема приложения».']]
 },
 en:{
   resume:['Start on the last screen','The app opens where it was closed: on “⌨️ Type”, in ABC, in a tile section or on 🎤 (the microphone does not switch on by itself). The same after an app update or when the phone unloaded it from memory. The typed text and the ABC line are kept too. To turn it off: ⚙️ → “Home screen and tiles”; then the app opens on the home screen or on Type (⚙️ → “⌨️ Typing and quick replies”).'],
@@ -5030,7 +5037,7 @@ en:{
   quickbar:['Quick replies',['A strip above the bottom bar: “Wait, I’m typing…”, “Please repeat”, “I don’t understand”, “Thank you”, “Yes, but…”. A tap speaks the reply at once, without a question. The other person hears that you are answering and does not interrupt.','The strip can be turned off in ⚙️ → “⌨️ Typing and quick replies”. If the replies do not fit, swipe the strip sideways.']],
   sel:['How to select: hold, dwell, scanning',['In ⚙️ → “Controls and taps” → “How to select”.','Normal tap — as usual.','Hold to select — hold a button for about half a second; helps with tremor and accidental touches.','Dwell — a finger, stylus or pointer rests on a button, and it works after the chosen time (0.8–3 s) without lifting; a trembling finger does not matter. A yellow bar shows the time left.','Scanning — for those whose hands barely work. The app highlights rows of buttons one by one (yellow frame), then the buttons in the chosen row. To select, touch anywhere on the screen or press an external switch. One switch: scanning moves by itself at the chosen speed. Two switches: “Next” is Space, → or ↓; “Select” is Enter (most Bluetooth accessibility switches work this way). If nothing is chosen in a row after two rounds, the highlight returns to the rows.','Inside Settings, Help and the editor normal taps always work, for the loved ones; open them (⚙️, ❓, ✏️) with the same selection method: dwell or scanning.']],
   yn:['✋ Yes / No full screen and scales',['The “✋ Yes / No” button on the home screen opens three huge buttons: “Yes”, “No”, “I don’t know”. For those who find even tiles hard. A tap speaks the answer.','The “🤕 Pain” tab is a 0–10 scale (0 no pain, 10 unbearable pain): the phone says “My pain is 7 out of 10”. The “🙂 Feeling” tab is 0–10 too (0 very bad, 10 great). Where it hurts: the “Pain” button on the bottom bar.','Close with “✕” or “Back”.']],
-  card:['🪪 Emergency card',['A card for a doctor or a passer-by: “I cannot speak, but I understand everything…”, name, diagnosis, medicines, allergies, loved ones’ numbers, whatever you fill in. Fill it in: ⚙️ → “🪪 Emergency card”.','Show it: the “🪪 Card” button on the home screen, on the red “Help” screen (the alarm stops), or from the app icon menu: touch and hold the app icon on the phone’s home screen and choose “Emergency card”. A web app cannot open the card from the lock screen.','“🔊 Read aloud” speaks the main text of the card. The data stays on the phone only.']]
+  card:['🪪 Emergency card',['A card for a doctor or a passer-by: “I cannot speak, but I understand everything…”, name, diagnosis, medicines, allergies, loved ones’ numbers, whatever you fill in. Fill it in: ⚙️ → “🪪 Emergency card”.','Show it: the “🪪 Card” button on the home screen, on the red “Help” screen (the alarm stops), or from the app icon menu: touch and hold the app icon on the phone’s home screen and choose “Emergency card”. A web app cannot open the card from the lock screen.','“🔊 Read aloud” speaks the main text of the card. The data stays on the phone only.','By default the card is always light, black text on white: that is easiest for a doctor or a passer-by to read, also in sunlight. If a white screen is a problem (for example, in the evening with the dark theme), choose “Follow the app theme” in ⚙️ → “🪪 Emergency card” → “Card look”.']]
 }};
 
 /* Обучение по шагам: новые тексты */
@@ -5107,7 +5114,7 @@ for(const l of ['uk','ru','en'])Object.assign(U[l],MV[l]);
 
 /* ---------- Настройки нового приложения ---------- */
 const MV_DEF={selMode:'tap',dwellMs:1200,scanKeys:1,scanMs:2000,scanSound:true,start:'tiles',quickBar:true,autoShow:false,kbLayout:'abc',kbSmall:false,tySys:false,
-  card:{name:'',main:'',dx:'',meds:'',allergy:'',notes:'',sos:true}};
+  card:{name:'',main:'',dx:'',meds:'',allergy:'',notes:'',sos:true,theme:'light'}};
 Object.keys(MV_DEF).forEach(k=>{if(settings[k]===undefined)settings[k]=JSON.parse(JSON.stringify(MV_DEF[k]))});
 if(settings.holdSel&&settings.selMode==='tap')settings.selMode='hold';
 if(!['tap','hold','dwell','scan'].includes(settings.selMode))settings.selMode='tap';
@@ -5119,6 +5126,7 @@ if(!['speak','words','pics'].includes(settings.profile))delete settings.profile;
 if(settings.kbLayout!=='qw')settings.kbLayout='abc';
 if(!settings.card||typeof settings.card!=='object')settings.card=JSON.parse(JSON.stringify(MV_DEF.card));
 ['name','main','dx','meds','allergy','notes'].forEach(k=>{settings.card[k]=String(settings.card[k]||'')});settings.card.sos=settings.card.sos!==false;
+if(settings.card.theme!=='app')settings.card.theme='light';   // карточка: всегда светлая (для показа другим) или как тема приложения
 settings.holdSel=settings.selMode==='hold';
 if(settings.resumeDef!==1){settings.resume=true;settings.resumeDef=1}   // v4: «Запуск с последнего экрана» включён по умолчанию; дальше — как выберет человек
 settings.hearTab='show';hearTab='show';             // вкладки «Говорю я» нет: экран 🎤 — только собеседник
@@ -5478,7 +5486,7 @@ function cardText(){
 function cardOpen(){
   cardClose();
   if(sos()){clearInterval(tmr);tmr=null;try{speechSynthesis.cancel()}catch(_){}}
-  const c=settings.card,d=h('div',null);d.id='card';d.setAttribute('role','dialog');
+  const c=settings.card,d=h('div',c.theme==='app'?'app':null);d.id='card';d.setAttribute('role','dialog');
   const sc=h('div','cdscroll');
   sc.append(h('div','cdh','🪪 '+u('c_title')));
   sc.append(h('div','cdmain',c.main.trim()||u('c_main_def')));
@@ -5765,7 +5773,7 @@ function mvSettLoad(){
   $('#setStart').value=settings.start;$('#setKbLayout').value=settings.kbLayout;
   $('#setQuickBar').checked=!!settings.quickBar;$('#setAutoShow').checked=!!settings.autoShow;
   const c=settings.card;
-  $('#setCardName').value=c.name;$('#setCardMain').value=c.main;$('#setCardDx').value=c.dx;$('#setCardMeds').value=c.meds;$('#setCardAllergy').value=c.allergy;$('#setCardNotes').value=c.notes;$('#setCardSos').checked=!!c.sos;
+  $('#setCardName').value=c.name;$('#setCardMain').value=c.main;$('#setCardDx').value=c.dx;$('#setCardMeds').value=c.meds;$('#setCardAllergy').value=c.allergy;$('#setCardNotes').value=c.notes;$('#setCardSos').checked=!!c.sos;$('#setCardTheme').value=c.theme==='app'?'app':'light';
   selSync();
 }
 function mvSettSave(){
@@ -5776,7 +5784,7 @@ function mvSettSave(){
   settings.quickBar=$('#setQuickBar').checked;settings.autoShow=$('#setAutoShow').checked;
   $('#setHoldSel').checked=settings.selMode==='hold';
   const v=q=>$(q).value.trim();
-  settings.card={name:v('#setCardName'),main:v('#setCardMain'),dx:v('#setCardDx'),meds:v('#setCardMeds'),allergy:v('#setCardAllergy'),notes:v('#setCardNotes'),sos:$('#setCardSos').checked};
+  settings.card={name:v('#setCardName'),main:v('#setCardMain'),dx:v('#setCardDx'),meds:v('#setCardMeds'),allergy:v('#setCardAllergy'),notes:v('#setCardNotes'),sos:$('#setCardSos').checked,theme:$('#setCardTheme').value==='app'?'app':'light'};
 }
 const _openSett=$('#settingsBtn').onclick;
 $('#settingsBtn').onclick=()=>{_openSett();mvSettLoad();if(typeOn)settSet('type');else drawSettHeads()};
@@ -5811,6 +5819,7 @@ applyI18n=function(){
   fill('#setScanKeys',[['1',uh('sk_1')],['2',uh('sk_2')]],String(settings.scanKeys));
   fill('#setScanMs',[1000,1500,2000,3000,4000].map(x=>[String(x),sec(x)]),String(settings.scanMs));
   fill('#setStart',[['tiles',uh('st_tiles')],['type',uh('st_type')]],settings.start);
+  fill('#setCardTheme',[['light',uh('ct_light')],['app',uh('ct_app')]],settings.card.theme);
   fill('#setProfile',[['speak',uh('pf_speak')],['words',uh('pf_words')],['pics',uh('pf_pics')]],settings.profile||'words');
   if($('#pfNote'))$('#pfNote').textContent=uh('pf_note');
   if($('#setup'))setupDraw(+$('#setup').dataset.step||1);

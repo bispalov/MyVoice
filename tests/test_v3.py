@@ -18,7 +18,7 @@ if(!localStorage.getItem('mv.tour.seen'))localStorage.setItem('mv.tour.seen',JSO
 window.__spoken=[];
 Object.defineProperty(window,'speechSynthesis',{value:{speak:u=>{window.__spoken.push(u.text);setTimeout(()=>{u.onend&&u.onend()},5)},cancel(){},getVoices:()=>[],speaking:false,pending:false,paused:false,onvoiceschanged:null}});
 """
-def page(b, w=360, hgt=640, st="{profile:'words'}", touch=False, extra=''):
+def page(b, w=360, hgt=640, st="{profile:'words',tyFirst:false}", touch=False, extra=''):
     c = b.new_context(viewport={'width': w, 'height': hgt}, service_workers='block', has_touch=touch, is_mobile=touch)
     c.add_init_script(INIT + f"if(!localStorage.getItem('mv.settings'))localStorage.setItem('mv.settings',JSON.stringify({st}));if(!localStorage.getItem('mv.lang'))localStorage.setItem('mv.lang','uk');" + extra)
     pg = c.new_page(); pg.set_default_timeout(5000)
@@ -102,7 +102,7 @@ with sync_playwright() as p:
     check('touch tap works (tap mode)', pg.evaluate('window.__spoken') == ['Так'], pg.evaluate('window.__spoken'))
     c.close()
 
-    c, pg, errs = page(b, 360, 640, st="{profile:'words',selMode:'dwell',dwellMs:800}", touch=True)
+    c, pg, errs = page(b, 360, 640, st="{profile:'words',tyFirst:false,selMode:'dwell',dwellMs:800}", touch=True)
     x, y = center(pg, '#bar button[data-k=yes]')
     touch(pg, x, y, 80)
     check('touch dwell: short tap ignored', pg.evaluate('window.__spoken') == [], pg.evaluate('window.__spoken'))

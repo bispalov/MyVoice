@@ -77,7 +77,7 @@ with sync_playwright() as p:
             route.fulfill(status=200, content_type='application/json', body=json.dumps({'query': {'prefixsearch': [{'title': 'мнемоніка'}, {'title': 'мнемонічний'}]}}))
         else:
             route.fulfill(status=200, content_type='application/json', body=json.dumps({'query': {'search': [], 'searchinfo': {}}}))
-    c, pg, errs = page(b, {'profile': 'words'})
+    c, pg, errs = page(b, {'profile': 'words', 'tyFirst': False})
     pg.route('**/*.wiktionary.org/**', wiki)
     pg.click('#typeBtn')
     for ch in ['М', 'Н', 'Е']:
@@ -123,7 +123,7 @@ with sync_playwright() as p:
 
     # 4. Вёрстка онлайн-результатов на узком экране
     for (w, hgt) in [(277, 492), (360, 640)]:
-        c, pg, errs = page(b, {'profile': 'words', 'wordOnline': True}, 'ru', w, hgt)
+        c, pg, errs = page(b, {'profile': 'words', 'tyFirst': False, 'wordOnline': True}, 'ru', w, hgt)
         pg.route('**/*.wiktionary.org/**', lambda r: r.fulfill(status=200, content_type='application/json', body=json.dumps({'query': {'prefixsearch': [{'title': x} for x in ['вода', 'водопровод', 'водитель', 'водоворот', 'водолаз', 'водоём']], 'search': []}})))
         pg.click('#typeBtn'); pg.click('.tykb .letters .lt:text-is("В")'); pg.click('.tykb .letters .lt:text-is("О")')
         pg.click('#tySug .tyglobe'); pg.wait_for_timeout(300)

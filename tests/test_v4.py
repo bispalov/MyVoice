@@ -17,7 +17,7 @@ if(!localStorage.getItem('mv.tour.seen'))localStorage.setItem('mv.tour.seen',JSO
 window.__spoken=[];
 Object.defineProperty(window,'speechSynthesis',{value:{speak:u=>{window.__spoken.push(u.text);setTimeout(()=>{u.onend&&u.onend()},5)},cancel(){},getVoices:()=>[],speaking:false,pending:false,paused:false,onvoiceschanged:null}});
 """
-def page(b, st="{profile:'words'}", lang='uk', w=360, hgt=640):
+def page(b, st="{profile:'words',tyFirst:false}", lang='uk', w=360, hgt=640):
     c = b.new_context(viewport={'width': w, 'height': hgt}, service_workers='block')
     c.add_init_script(INIT + f"if(!localStorage.getItem('mv.settings'))localStorage.setItem('mv.settings',JSON.stringify({st}));if(!localStorage.getItem('mv.lang'))localStorage.setItem('mv.lang','{lang}');")
     pg = c.new_page(); pg.set_default_timeout(5000)
@@ -66,20 +66,7 @@ with sync_playwright() as p:
     check('no errors draft', not errs, errs)
     c.close()
 
-    # 2. Строка «Азбуки»
-    c, pg, errs = page(b)
-    pg.click('#abcBtn'); pg.wait_for_timeout(100)
-    pg.evaluate("abcLine.push('Я','хочу');renderAbc()")
-    pg.wait_for_timeout(1300)   # сохраняется не позже чем через секунду
-    check('abc line saved', pg.evaluate("JSON.parse(localStorage.getItem('mv.draft.uk')).abc") == ['Я', 'хочу'])
-    reload(pg)
-    check('abc screen restored', pg.evaluate('!!abc'))
-    check('abc line restored', pg.evaluate('abcLine') == ['Я', 'хочу'], pg.evaluate('abcLine'))
-    check('abc line shown', 'хочу' in pg.inner_text('#main'))
-    pg.evaluate("abcLine.length=0;renderAbc()"); pg.wait_for_timeout(1300)
-    check('abc cleared removed', pg.evaluate("localStorage.getItem('mv.draft.uk')") is None)
-    check('no errors abc', not errs, errs)
-    c.close()
+    # 2. Строка «Азбуки» — с v7 экрана «Азбука» нет; перенос её черновика в «Писать» проверяет test_v7.py
 
     # 3. Запуск с последнего экрана: по умолчанию включён, выбор человека сохраняется
     c, pg, errs = page(b)

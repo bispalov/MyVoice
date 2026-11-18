@@ -26,7 +26,7 @@ def check(n, c, x=''):
     if c: OK += 1
     else: FAIL += 1; print('FAIL:', n, x)
 
-INIT = "if(!localStorage.getItem('mv.settings'))localStorage.setItem('mv.settings',JSON.stringify({profile:'words'}));localStorage.setItem('mv.tour.seen',JSON.stringify({home:1,tiles:1,show:1,abc:1,type:1}));localStorage.setItem('aac.tour.seen',JSON.stringify({home:1,tiles:1,hear:1,show:1,abc:1}));"
+INIT = "if(!localStorage.getItem('mv.settings'))localStorage.setItem('mv.settings',JSON.stringify({profile:'words',tyFirst:false}));localStorage.setItem('mv.tour.seen',JSON.stringify({home:1,tiles:1,show:1,abc:1,type:1}));localStorage.setItem('aac.tour.seen',JSON.stringify({home:1,tiles:1,hear:1,show:1,abc:1}));"
 def ready(pg):
     pg.wait_for_function("navigator.serviceWorker&&navigator.serviceWorker.controller", timeout=20000)
 def keys(pg): return sorted(pg.evaluate("caches.keys()"))

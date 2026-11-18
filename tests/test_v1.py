@@ -28,7 +28,7 @@ def clear_spoken(pg): pg.evaluate('window.__spoken.length=0')
 def new_page(b, w=360, hgt=640, lang='uk', settings=None, extra=''):
     c = b.new_context(viewport={'width': w, 'height': hgt}, service_workers='block')
     pre = f"if(!localStorage.getItem('mv.lang'))localStorage.setItem('mv.lang','{lang}');"
-    settings = dict({'profile': 'words'}, **(settings or {}))   # назначение задано — без вопроса при первом запуске
+    settings = dict({'profile': 'words', 'tyFirst': False}, **(settings or {}))   # v7: в «Писать» набор по буквам   # назначение задано — без вопроса при первом запуске
     pre += f"if(!localStorage.getItem('mv.settings'))localStorage.setItem('mv.settings',{json.dumps(json.dumps(settings))});"
     c.add_init_script(INIT + pre + extra)
     pg = c.new_page(); pg.set_default_timeout(5000)
@@ -322,7 +322,7 @@ with sync_playwright() as p:
         check(f'help toc {lang}', pg.locator('#help details.hi').count() == n)
         pg.click('#help .helphead button')
         pg.click('#typeBtn'); pg.click('#helpBtn')
-        check(f'help type ctx {lang}', pg.locator('#help details.hi[open]').count() == 8, pg.locator('#help details.hi[open]').count())
+        check(f'help type ctx {lang}', pg.locator('#help details.hi[open]').count() == 10, pg.locator('#help details.hi[open]').count())
         pg.click('#help .helphead button')
         pg.click('#settingsBtn')
         check(f'settings opens type group {lang}', pg.evaluate("document.querySelector('#sett .sg.open').dataset.g") == 'type')

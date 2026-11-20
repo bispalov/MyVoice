@@ -624,6 +624,12 @@ body.pbmode #quick{display:none}
   .prwm{font-size:11pt;font-weight:700;margin-bottom:1.5mm}
   .prw .prf{margin:1mm 0}.prw .prl{font-size:8pt}.prw .prv{font-size:10pt}
 }
+
+/* v12: 🖨 и 💾 рядом */
+.prrow{display:flex;gap:8px;margin-top:8px}.prrow .prbtn{flex:1 1 0;margin-top:0;min-width:0}
+#card .cdb.pr{flex:0 0 60px}
+@media (max-width:340px){.prrow{flex-direction:column}}
+.prrow .prbtn{overflow-wrap:normal;word-break:normal}
 </style>
 </head>
 <body>
@@ -695,6 +701,7 @@ body.pbmode #quick{display:none}
     <label data-i="s_c_theme"></label><select id="setCardTheme"></select>
     <button type="button" class="wide" id="cardShowBtn" data-i="b_c_show"></button>
     <button type="button" class="wide" id="cardPrintBtn" data-i="pr_card_b"></button>
+    <button type="button" class="wide" id="cardPdfBtn" data-i="b_pdf_card"></button>
   </div></div>
   <div class="sg" data-g="voice"><button class="sgh" type="button" data-t="g_voice"></button><div class="sgb">
     <label data-i="s_voice"></label>
@@ -722,6 +729,7 @@ body.pbmode #quick{display:none}
     <label data-i="s_kblayout"></label><select id="setKbLayout"></select>
     <label class="chk"><input type="checkbox" id="setTyFirst"><span data-i="s_tyfirst"></span></label>
     <button type="button" class="wide" id="pbPrintBtn" data-i="b_pr_pb"></button>
+    <button type="button" class="wide" id="pbPdfBtn" data-i="b_pdf_pb"></button>
     <label class="chk"><input type="checkbox" id="setQuickBar"><span data-i="s_quickbar"></span></label>
     <label class="chk"><input type="checkbox" id="setAutoShow"><span data-i="s_autoshow"></span></label>
   </div></div>
@@ -798,7 +806,7 @@ body.pbmode #quick{display:none}
 <div id="diary" class="modal"></div>
 
 <script>
-const APP_VERSION = 11;   // держите в соответствии с V = 'govorim-v70' в sw.js
+const APP_VERSION = 12;   // держите в соответствии с V = 'govorim-v70' в sw.js
 // Логин автора на GitHub: ссылки «Автор» и «Исходный код» в ⚙️ → «ℹ️ О приложении» (работают и в копиях на других сайтах).
 // Если оставить пустым, логин берётся из адреса <логин>.github.io.
 const APP_AUTHOR_GH = 'bispalov';
@@ -5244,12 +5252,16 @@ Object.assign(MV.en,{ty_forms:'Form',ty_forms_l:'Another form of the word (go �
 MV_HELP.uk.type[1].push('🔄 «Форма» — інша форма останнього слова: вибрали «лікарня», а потрібно «у лікарні» — натисніть «🔄 Форма» на початку рядка підказок (з’являється, коли слово закінчене) і виберіть «лікарні». Застосунок шукає в словнику слова з тією ж основою й іншим закінченням; після «у», «до», «з», «я», «ти»… першими йдуть форми, які зазвичай стоять після цього слова. Форми зі зміною букв в основі (рука — руці) не знаходяться — їх можна набрати.');
 MV_HELP.ru.type[1].push('🔄 «Форма» — другая форма последнего слова: выбрали «больница», а нужно «в больнице» — нажмите «🔄 Форма» в начале строки подсказок (появляется, когда слово закончено) и выберите «больнице». Приложение ищет в словаре слова с той же основой и другим окончанием; после «в», «до», «с», «я», «ты»… первыми идут формы, которые обычно стоят после этого слова. Формы с изменением букв в основе (рука — руке, друг — друзья) не находятся — их можно набрать.');
 MV_HELP.en.type[1].push('🔄 “Form” — another form of the last word: you chose “go” but need “goes” — tap “🔄 Form” at the start of the suggestion row (it appears once the word is finished) and pick it. The app looks in the dictionary for words with the same stem and another ending; after “he”, “to”, “is”… the usual forms come first. Irregular forms (go — went) are not found — type them.');
-MV_HELP.uk.pb[1].push('🖨 Паперова таблиця: кнопка «Роздрукувати таблицю» внизу екрана (або ⚙️ → «⌨️ Писати і швидкі репліки»). На аркуші — ті самі рядки літер, «ТАК / НІ / НЕ ЗНАЮ», цифри й коротка інструкція для помічника. Знадобиться, коли телефон сів, у лікарні або для людини, яка не користується застосунком. У Chrome на телефоні можна вибрати принтер або «Зберегти як PDF».');
-MV_HELP.ru.pb[1].push('🖨 Бумажная таблица: кнопка «Распечатать таблицу» внизу экрана (или ⚙️ → «⌨️ Писать и быстрые реплики»). На листе — те же строки букв, «ДА / НЕТ / НЕ ЗНАЮ», цифры и короткая инструкция для помощника. Пригодится, когда телефон сел, в больнице или для человека, который не пользуется приложением. В Chrome на телефоне можно выбрать принтер или «Сохранить как PDF».');
-MV_HELP.en.pb[1].push('🖨 Paper board: the “Print the letter board” button at the bottom of the screen (or ⚙️ → “⌨️ Typing and quick replies”). The sheet has the same letter rows, “YES / NO / DON’T KNOW”, digits and short instructions for the helper. Useful when the phone is flat, in hospital, or for someone who does not use the app. In Chrome on the phone choose a printer or “Save as PDF”.');
-MV_HELP.uk.card[1].push('🖨 Роздрукувати: кнопка 🖨 у картці або ⚙️ → «🪪 Екстрена картка» → «Роздрукувати картку». На аркуші — картка на всю сторінку й маленька картка для гаманця (виріжте по пунктиру й складіть навпіл). Друкується завжди чорним на білому.');
-MV_HELP.ru.card[1].push('🖨 Распечатать: кнопка 🖨 в карточке или ⚙️ → «🪪 Экстренная карточка» → «Распечатать карточку». На листе — карточка на всю страницу и маленькая карточка для кошелька (вырежьте по пунктиру и сложите пополам). Печатается всегда чёрным на белом.');
-MV_HELP.en.card[1].push('🖨 Print: the 🖨 button on the card or ⚙️ → “🪪 Emergency card” → “Print the card”. The sheet has a full-page card and a small wallet card (cut along the dashed line and fold in half). Always printed black on white.');
+MV_HELP.uk.pb[1].push('🖨 Паперова таблиця: кнопка «Роздрукувати таблицю» внизу екрана (або ⚙️ → «⌨️ Писати і швидкі репліки»). На аркуші — ті самі рядки літер, «ТАК / НІ / НЕ ЗНАЮ», цифри й коротка інструкція для помічника. Знадобиться, коли телефон сів, у лікарні або для людини, яка не користується застосунком. У Chrome на телефоні можна вибрати принтер або «Зберегти як PDF». Якщо друку в PDF у телефоні немає — кнопка «💾 Зберегти PDF»: файл одразу з’явиться в папці «Завантаження», його можна надіслати в WhatsApp чи роздрукувати пізніше.');
+MV_HELP.ru.pb[1].push('🖨 Бумажная таблица: кнопка «Распечатать таблицу» внизу экрана (или ⚙️ → «⌨️ Писать и быстрые реплики»). На листе — те же строки букв, «ДА / НЕТ / НЕ ЗНАЮ», цифры и короткая инструкция для помощника. Пригодится, когда телефон сел, в больнице или для человека, который не пользуется приложением. В Chrome на телефоне можно выбрать принтер или «Сохранить как PDF». Если печати в PDF в телефоне нет — кнопка «💾 Сохранить PDF»: файл сразу появится в папке «Загрузки», его можно отправить в WhatsApp или распечатать позже.');
+MV_HELP.en.pb[1].push('🖨 Paper board: the “Print the letter board” button at the bottom of the screen (or ⚙️ → “⌨️ Typing and quick replies”). The sheet has the same letter rows, “YES / NO / DON’T KNOW”, digits and short instructions for the helper. Useful when the phone is flat, in hospital, or for someone who does not use the app. In Chrome on the phone choose a printer or “Save as PDF”. If the phone has no PDF printing, use “💾 Save PDF”: the file goes straight to Downloads, ready to send in WhatsApp or print later.');
+MV_HELP.uk.card[1].push('🖨 Роздрукувати: кнопка 🖨 у картці або ⚙️ → «🪪 Екстрена картка» → «Роздрукувати картку». На аркуші — картка на всю сторінку й маленька картка для гаманця (виріжте по пунктиру й складіть навпіл). Друкується завжди чорним на білому. Кнопка 💾 зберігає той самий аркуш у PDF у «Завантаження» — без друку.');
+MV_HELP.ru.card[1].push('🖨 Распечатать: кнопка 🖨 в карточке или ⚙️ → «🪪 Экстренная карточка» → «Распечатать карточку». На листе — карточка на всю страницу и маленькая карточка для кошелька (вырежьте по пунктиру и сложите пополам). Печатается всегда чёрным на белом. Кнопка 💾 сохраняет тот же лист в PDF в «Загрузки» — без печати.');
+MV_HELP.en.card[1].push('🖨 Print: the 🖨 button on the card or ⚙️ → “🪪 Emergency card” → “Print the card”. The sheet has a full-page card and a small wallet card (cut along the dashed line and fold in half). Always printed black on white. The 💾 button saves the same sheet as a PDF to Downloads — no printing needed.');
+// v12: сохранить PDF прямо из приложения
+Object.assign(MV.uk,{pr_b:'Роздрукувати',pdf_b:'Зберегти PDF',pdf_card_b:'Зберегти картку в PDF',pdf_saved:'Збережено: {f} — у папці «Завантаження»',pdf_err:'Не вдалося зберегти PDF',b_pdf_pb:'💾 Зберегти таблицю «По літерах» у PDF',b_pdf_card:'💾 Зберегти картку в PDF'});
+Object.assign(MV.ru,{pr_b:'Распечатать',pdf_b:'Сохранить PDF',pdf_card_b:'Сохранить карточку в PDF',pdf_saved:'Сохранено: {f} — в папке «Загрузки»',pdf_err:'Не удалось сохранить PDF',b_pdf_pb:'💾 Сохранить таблицу «По буквам» в PDF',b_pdf_card:'💾 Сохранить карточку в PDF'});
+Object.assign(MV.en,{pr_b:'Print',pdf_b:'Save PDF',pdf_card_b:'Save the card as PDF',pdf_saved:'Saved: {f} — in the Downloads folder',pdf_err:'Could not save the PDF',b_pdf_pb:'💾 Save the letter board as PDF',b_pdf_card:'💾 Save the card as PDF'});
 
 /* ==========================================================================
    «Мій голос» — то, чего нет в Govorim:
@@ -5322,10 +5334,10 @@ settings.holdSel=settings.selMode==='hold';
 if(settings.resumeDef!==1){settings.resume=true;settings.resumeDef=1}   // v4: «Запуск с последнего экрана» включён по умолчанию; дальше — как выберет человек
 settings.hearTab='show';hearTab='show';             // вкладки «Говорю я» нет: экран 🎤 — только собеседник
 const capFirst=s=>s?s.charAt(0).toLocaleUpperCase(lang)+s.slice(1):s;
-function mvToast(txt){
+function mvToast(txt,ms){
   const old=$('#mvToast');if(old)old.remove();
   const d=h('div',null,txt);d.id='mvToast';d.setAttribute('role','status');document.body.append(d);
-  setTimeout(()=>{if(d.isConnected)d.remove()},2200);
+  setTimeout(()=>{if(d.isConnected)d.remove()},ms||2200);
 }
 
 /* ======================= ⌨️ Писать ======================= */
@@ -6449,6 +6461,117 @@ cardOpen=function(){
 };
 $('#pbPrintBtn').onclick=()=>mvPrint('pb');
 $('#cardPrintBtn').onclick=()=>{mvSettSave();try{localStorage.setItem('mv.settings',JSON.stringify(settings))}catch(_){}mvPrint('card')};
+
+/* ---------- 💾 Сохранить PDF прямо из приложения (v12) ----------
+   На части телефонов в окне печати нет «Сохранить как PDF» (выключен «Диспетчер печати»). Поэтому лист рисуется
+   на canvas (A4, 150 dpi), сохраняется в JPEG и заворачивается в одностраничный PDF вручную — без библиотек и сети.
+   Файл скачивается в «Загрузки». Текст в таком PDF — картинка (нельзя выделить), для печати и показа это неважно. */
+const PDF_MM=150/25.4;   // точек на мм
+function pdfCanvas(){const c=document.createElement('canvas');c.width=Math.round(210*PDF_MM);c.height=Math.round(297*PDF_MM);const x=c.getContext('2d');x.scale(PDF_MM,PDF_MM);x.fillStyle='#fff';x.fillRect(0,0,210,297);x.fillStyle='#000';x.strokeStyle='#000';x.textBaseline='alphabetic';return {c,x}}
+const PDF_FONT='system-ui,Roboto,Arial,sans-serif';
+function pdfFont(x,sz,bold){x.font=(bold?'bold ':'')+sz+'px '+PDF_FONT}   // sz — в мм (масштаб уже в мм)
+function pdfLines(x,txt,maxW){
+  const out=[];String(txt||'').split('\n').forEach(par=>{
+    let line='';par.split(/\s+/).filter(Boolean).forEach(w=>{const t=line?line+' '+w:w;if(x.measureText(t).width<=maxW||!line)line=t;else{out.push(line);line=w}});
+    out.push(line);
+  });return out;
+}
+// Текст с переносом: возвращает новую y (нижний край)
+function pdfText(x,txt,x0,y,maxW,sz,bold,lh,align){
+  pdfFont(x,sz,bold);lh=lh||sz*1.25;
+  pdfLines(x,txt,maxW).forEach(l=>{y+=lh;x.textAlign=align||'left';x.fillText(l,align==='center'?x0+maxW/2:x0,y-lh*0.22)});
+  x.textAlign='left';return y;
+}
+function pdfBox(x,x0,y0,w,h,lw,dash){x.save();x.lineWidth=lw||0.4;if(dash)x.setLineDash(dash);x.strokeRect(x0,y0,w,h);x.restore()}
+function pdfDrawBoard(x){
+  const L=12,W=186;let y=12;
+  y=pdfText(x,'👁 '+u('pr_pb_t'),L,y,W,8,true,9.5);y+=4;
+  const bw=(W-8)/3;[['pr_yes',[]],['pr_no',[]],['pr_dk',[2,1.5]]].forEach(([k,d],i)=>{
+    const bx=L+i*(bw+4);pdfBox(x,bx,y,bw,16,1.2,d);if(k==='pr_no')pdfBox(x,bx+1.6,y+1.6,bw-3.2,16-3.2,0.5);
+    pdfFont(x,8,true);x.textAlign='center';x.fillText(u(k),bx+bw/2,y+10.8);x.textAlign='left';
+  });
+  y+=21;
+  const c0=12,cw=(W-c0)/6,rh=15,rows=PB_ROWS[lang];
+  const cell=(cx,cy,w,h,t,sz,b)=>{pdfBox(x,cx,cy,w,h,0.6);if(t){pdfFont(x,sz,b);x.textAlign='center';x.fillText(t,cx+w/2,cy+h/2+sz*0.36);x.textAlign='left'}};
+  rows.forEach((r,i)=>{cell(L,y,c0,rh,String(i+1),5.5,true);const cs=[...r];for(let k=0;k<6;k++)cell(L+c0+k*cw,y,cw,rh,cs[k]?(cs[k]==="'"?'’':cs[k].toLocaleUpperCase(lang)):'',10,true);y+=rh});
+  cell(L,y,c0,rh,String(rows.length+1),5.5,true);(u('pr_ctl')||[]).forEach((t,k)=>cell(L+c0+k*2*cw,y,2*cw,rh,t,5.3,true));y+=rh;
+  cell(L,y,c0,12,'123',4.5,true);cell(L+c0,y,6*cw,12,'1  2  3  4  5  6  7  8  9  0',6.3,true);y+=12;
+  y+=3;y=pdfText(x,uh('pr_how_t'),L,y,W,5,true,6.5);
+  (uh('pr_how')||[]).forEach((s,i)=>{pdfFont(x,4.2,false);x.fillText((i+1)+'.',L,y+4.2);y=pdfText(x,s,L+6,y,W-6,4.2,false,5.3)+0.8});
+  y+=3;pdfFont(x,4.2,true);x.fillText(u('pr_phrase')+':',L,y+7);
+  [y+10,y+21].forEach(ly=>{x.save();x.lineWidth=0.4;x.beginPath();x.moveTo(L,ly);x.lineTo(L+W,ly);x.stroke();x.restore()});
+}
+function pdfCardFields(c,keys){
+  const out=[];keys.forEach(k=>{
+    if(k==='sos'){if(!c.sos)return;const ph=(settings.sos||[]).filter(s=>s&&s.t);if(ph.length)out.push([u('c_contacts'),ph.map(s=>(s.n?s.n+': ':'')+s.t).join('\n')]);return}
+    const v=String(c[k]||'').trim();if(v)out.push([u({name:'c_name',dx:'c_dx',meds:'c_meds',allergy:'c_allergy',notes:'c_notes'}[k]),v]);
+  });return out;
+}
+function pdfDrawCard(x){
+  const c=settings.card,L=12,W=186,main=c.main.trim()||u('c_main_def');
+  let y=12;const top=y;
+  y=pdfText(x,'🪪 '+u('c_title'),L+6,y+3,W-12,7,true,8.5);
+  y=pdfText(x,main,L+6,y+2,W-12,6.3,true,7.8)+2;
+  pdfCardFields(c,['name','dx','meds','allergy','sos','notes']).forEach(([l,v])=>{y=pdfText(x,l,L+6,y+1,W-12,3.8,false,4.8);y=pdfText(x,v,L+6,y,W-12,5.5,true,6.8)});
+  y+=5;x.save();x.lineWidth=0.8;x.beginPath();x.roundRect?x.roundRect(L,top,W,y-top,3):x.rect(L,top,W,y-top);x.stroke();x.restore();
+  // для кошелька: две половины 85×54 мм
+  y+=8;y=pdfText(x,'✂ '+uh('pr_cut'),L,y,W,3.8,false,4.8)+2;
+  const hw=85,hh=54;
+  const half=(y0,fill)=>{x.save();x.beginPath();x.rect(L,y0,hw,hh);x.clip();fill(y0);x.restore();pdfBox(x,L,y0,hw,hh,0.4,[2,1.5])};
+  half(y,y0=>{let yy=pdfText(x,'🪪 '+u('c_title'),L+3,y0+1,hw-6,4.2,true,5.2);yy=pdfText(x,main,L+3,yy+0.5,hw-6,3.6,true,4.5);pdfCardFields(c,['name']).forEach(([l,v])=>{yy=pdfText(x,l,L+3,yy+1,hw-6,2.8,false,3.5);yy=pdfText(x,v,L+3,yy,hw-6,3.5,true,4.4)})});
+  half(y+hh,y0=>{let yy=y0+1;const f=pdfCardFields(c,['dx','meds','allergy','sos','notes']);if(!f.length)yy=pdfText(x,main,L+3,yy,hw-6,3.6,true,4.5);f.forEach(([l,v])=>{yy=pdfText(x,l,L+3,yy+0.6,hw-6,2.8,false,3.5);yy=pdfText(x,v,L+3,yy,hw-6,3.5,true,4.4)})});
+}
+// Одностраничный PDF из JPEG (A4)
+function pdfFromJpeg(jpg,w,h){
+  const enc=new TextEncoder(),parts=[],offs=[];let len=0;
+  const put=p=>{const b=typeof p==='string'?enc.encode(p):p;parts.push(b);len+=b.length};
+  const obj=(n,body,stream)=>{offs[n]=len;put(n+' 0 obj\n'+body);if(stream){put('\nstream\n');put(stream);put('\nendstream')}put('\nendobj\n')};
+  put('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n'.replace(/[\u0080-ÿ]/g,'A'));
+  const cs='q 595.28 0 0 841.89 0 0 cm /Im0 Do Q';
+  obj(1,'<</Type/Catalog/Pages 2 0 R>>');
+  obj(2,'<</Type/Pages/Kids[3 0 R]/Count 1>>');
+  obj(3,'<</Type/Page/Parent 2 0 R/MediaBox[0 0 595.28 841.89]/Resources<</XObject<</Im0 4 0 R>>>>/Contents 5 0 R>>');
+  obj(4,'<</Type/XObject/Subtype/Image/Width '+w+'/Height '+h+'/ColorSpace/DeviceRGB/BitsPerComponent 8/Filter/DCTDecode/Length '+jpg.length+'>>',jpg);
+  obj(5,'<</Length '+cs.length+'>>',cs);
+  const xr=len;let t='xref\n0 6\n0000000000 65535 f \n';for(let i=1;i<=5;i++)t+=String(offs[i]).padStart(10,'0')+' 00000 n \n';
+  put(t+'trailer\n<</Size 6/Root 1 0 R>>\nstartxref\n'+xr+'\n%%EOF\n');
+  return new Blob(parts,{type:'application/pdf'});
+}
+async function mvSavePdf(kind){
+  try{
+    const {c,x}=pdfCanvas();
+    if(kind==='pb')pdfDrawBoard(x);else pdfDrawCard(x);
+    x.setTransform(1,0,0,1,0,0);x.font='18px '+PDF_FONT;x.fillStyle='#000';x.textAlign='right';
+    x.fillText(uh('title')+' · bispalov.github.io/MyVoice',c.width-Math.round(12*PDF_MM),c.height-Math.round(8*PDF_MM));
+    const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',0.9));
+    const jpg=new Uint8Array(await blob.arrayBuffer());
+    const pdf=pdfFromJpeg(jpg,c.width,c.height);
+    const name='MyVoice-'+(kind==='pb'?'letters-'+lang:'card')+'.pdf';
+    const a=document.createElement('a');a.href=URL.createObjectURL(pdf);a.download=name;document.body.append(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);
+    logPhrase('💾 '+name);
+    mvToast(uh('pdf_saved').replace('{f}',name),5000);
+    return name;
+  }catch(e){mvToast(uh('pdf_err'));return ''}
+}
+// кнопки 💾 рядом с 🖨
+const _renderPb2=renderPb;
+renderPb=function(){
+  _renderPb2();
+  const pr=$('#pbPrint');if(!pr)return;
+  const r=h('div','prrow');pr.replaceWith(r);
+  const s=h('button','tyb prbtn','💾 '+uh('pdf_b'),()=>mvSavePdf('pb'));s.id='pbPdf';
+  pr.textContent='🖨 '+uh('pr_b');r.append(pr,s);
+};
+const _cardOpen2=cardOpen;
+cardOpen=function(){
+  _cardOpen2();
+  const pr=$('#cardPrint');if(!pr)return;
+  const b=h('button','cdb pr','💾',()=>mvSavePdf('card'));b.id='cardPdf';b.setAttribute('aria-label',uh('pdf_card_b'));
+  pr.after(b);
+};
+$('#pbPdfBtn').onclick=()=>mvSavePdf('pb');
+$('#cardPdfBtn').onclick=()=>{mvSettSave();try{localStorage.setItem('mv.settings',JSON.stringify(settings))}catch(_){}mvSavePdf('card')};
 
 /* ---------- Подписи интерфейса на выбранном языке ---------- */
 function fill(sel,opts,val){const el=$(sel);el.innerHTML='';opts.forEach(([v,txt])=>el.append(new Option(txt,v)));el.value=val}

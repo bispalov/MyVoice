@@ -578,6 +578,52 @@ body.pbmode #quick{display:none}
 [data-theme="dark"] .pbrow.cur{background:transparent;outline:4px solid #F2B705;outline-offset:1px}
 [data-theme="dark"] .pbl.cur{background:var(--card-bg);color:#FFE27A;border:4px solid #F2B705}
 [data-theme="dark"] .pbli.cur{background:var(--card-bg);color:#FFE27A;border:4px solid #F2B705}
+
+/* v10: поля номера телефона и др. — как текстовые (в тёмной теме не белые, тот же шрифт, что у имени) */
+.modal input[type=tel],.modal input[type=number],.modal input[type=email],.modal input[type=url],.modal input:not([type]){width:100%;font:inherit;padding:10px;border:2px solid var(--border);border-radius:10px;background:var(--card-bg);color:var(--ink)}
+/* v10: экран «Помощь» в тёмной теме — кнопки звонка и сообщения тёмные со светлым текстом и рамкой (не белые) */
+[data-theme="dark"] #ov.red .call{background:#1A0705;color:#fff;border:3px solid #fff}
+[data-theme="dark"] #ov.red .send{background:#0E2A1B;color:#fff;border:3px solid #9BE7BC}
+
+/* v11: формы слова */
+.tyformsn{margin:6px 2px}
+.tysug .chip.tyfm{flex:0 0 auto}
+/* v11: печать */
+#printArea{display:none}
+.prbtn{display:block;width:100%;margin-top:8px;min-height:48px;font-size:17px}
+#card .cdb.pr{flex:0 0 64px;font-size:26px;background:#374151}
+@media print{
+  @page{size:A4;margin:12mm}
+  html,body{height:auto!important;overflow:visible!important;background:#fff!important}
+  body.mvprint>*:not(#printArea){display:none!important}
+  body.mvprint #printArea{display:block!important;color:#000;background:#fff;font-family:system-ui,Arial,sans-serif;font-size:12pt;line-height:1.3;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #printArea *{color:#000!important;background:transparent!important;box-shadow:none!important}
+  #printArea h1{font-size:22pt;margin:0 0 4mm}
+  #printArea h2{font-size:14pt;margin:5mm 0 2mm}
+  .pryn{display:flex;gap:4mm;margin-bottom:5mm}
+  .pryb{flex:1;text-align:center;font-size:24pt;font-weight:800;padding:4mm 0;border:1.2mm solid #000;border-radius:4mm}
+  .pryb.n{border-style:double;border-width:2mm}.pryb.d{border-style:dashed}
+  .prtab{width:100%;border-collapse:collapse;page-break-inside:avoid}
+  .prtab th,.prtab td{border:0.6mm solid #000;text-align:center;vertical-align:middle;height:15mm}
+  .prtab th{width:12mm;font-size:16pt}
+  .prtab td{font-size:28pt;font-weight:800}
+  .prtab tr.ctl td{font-size:15pt;font-weight:700}
+  .prtab tr.dig td,.prtab tr.dig th{font-size:18pt;height:12mm}.prtab tr.dig td{letter-spacing:2mm}
+  .prhow{margin:0;padding-left:6mm}.prhow li{margin:1mm 0}
+  .prline{border-bottom:0.4mm solid #000;height:10mm;margin-top:2mm;font-size:12pt}
+  .prfoot{margin-top:5mm;font-size:9pt;text-align:right}
+  .prbig{border:0.8mm solid #000;border-radius:3mm;padding:6mm;page-break-inside:avoid}
+  .prmain{font-size:20pt;font-weight:800;margin-bottom:4mm}
+  .prf{margin:2mm 0}.prl{font-size:11pt}.prv{font-size:16pt;font-weight:700;white-space:pre-line}
+  .prwal{margin-top:8mm;page-break-inside:avoid;break-inside:avoid}
+  .prcut{font-size:11pt;margin:0 0 3mm}
+  .prw{width:85mm;min-height:54mm;box-sizing:border-box;border:0.4mm dashed #000;padding:3mm;overflow:hidden}
+  .prw.front{border-bottom:0.4mm dashed #000}
+  .prw.back{border-top:none}
+  .prwh{font-size:12pt;font-weight:800;margin-bottom:1.5mm}
+  .prwm{font-size:11pt;font-weight:700;margin-bottom:1.5mm}
+  .prw .prf{margin:1mm 0}.prw .prl{font-size:8pt}.prw .prv{font-size:10pt}
+}
 </style>
 </head>
 <body>
@@ -648,6 +694,7 @@ body.pbmode #quick{display:none}
     <label class="chk"><input type="checkbox" id="setCardSos"><span data-i="s_c_sos"></span></label>
     <label data-i="s_c_theme"></label><select id="setCardTheme"></select>
     <button type="button" class="wide" id="cardShowBtn" data-i="b_c_show"></button>
+    <button type="button" class="wide" id="cardPrintBtn" data-i="pr_card_b"></button>
   </div></div>
   <div class="sg" data-g="voice"><button class="sgh" type="button" data-t="g_voice"></button><div class="sgb">
     <label data-i="s_voice"></label>
@@ -674,6 +721,7 @@ body.pbmode #quick{display:none}
     <label data-i="s_start"></label><select id="setStart"></select>
     <label data-i="s_kblayout"></label><select id="setKbLayout"></select>
     <label class="chk"><input type="checkbox" id="setTyFirst"><span data-i="s_tyfirst"></span></label>
+    <button type="button" class="wide" id="pbPrintBtn" data-i="b_pr_pb"></button>
     <label class="chk"><input type="checkbox" id="setQuickBar"><span data-i="s_quickbar"></span></label>
     <label class="chk"><input type="checkbox" id="setAutoShow"><span data-i="s_autoshow"></span></label>
   </div></div>
@@ -750,7 +798,7 @@ body.pbmode #quick{display:none}
 <div id="diary" class="modal"></div>
 
 <script>
-const APP_VERSION = 9;   // держите в соответствии с V = 'govorim-v70' в sw.js
+const APP_VERSION = 11;   // держите в соответствии с V = 'govorim-v70' в sw.js
 // Логин автора на GitHub: ссылки «Автор» и «Исходный код» в ⚙️ → «ℹ️ О приложении» (работают и в копиях на других сайтах).
 // Если оставить пустым, логин берётся из адреса <логин>.github.io.
 const APP_AUTHOR_GH = 'bispalov';
@@ -5180,6 +5228,28 @@ en:{scr_type:'⌨️ Type',scr_pb:'👁 Letter board',
   y_kb:'The keyboard. Try tapping a letter.',y_say:'“{ty_say}” — the phone speaks the phrase. “⌫” deletes a word, 🗑 everything, ⭐ saves it to “My phrases”.',
   y_my:'“My phrases” — saved phrases: a tap speaks at once.'}
 };
+// v11: формы слова и печать
+Object.assign(MV.uk,{ty_forms:'Форма',ty_forms_l:'Інша форма слова (лікарня → у лікарні)',ty_forms_none:'Інших форм цього слова в словнику не знайдено.',ty_forms_note:'Натисніть потрібну форму — вона замінить останнє слово. Утримання — послухати.',
+  pr_pb_b:'Роздрукувати таблицю «По літерах»',pr_card_b:'🖨 Роздрукувати картку',pr_pb_t:'Розмова по літерах',pr_yes:'ТАК',pr_no:'НІ',pr_dk:'НЕ ЗНАЮ',pr_ctl:['␣ Пробіл','⌫ Стерти','✔ Кінець'],pr_phrase:'Фраза',
+  pr_how_t:'Як користуватися (для помічника)',pr_how:['Домовтеся про знак «так» (моргнути, кивнути, подивитися вгору) і «ні».','Називайте або показуйте рядки по черзі: «Перший? Другий?…» Людина подає знак на потрібному рядку.','Потім називайте літери цього рядка — людина подає знак на потрібній. Записуйте літери внизу.','Коли слово вже зрозуміле — спитайте: «Це слово „…“?» — дописувати до кінця не обов’язково.','Останній рядок — щоб почати нове слово, стерти помилку або закінчити фразу. Цифри — для чисел і номерів.'],
+  pr_cut:'Картка для гаманця: виріжте по пунктиру й складіть навпіл.',b_pr_pb:'🖨 Роздрукувати таблицю «По літерах»'});
+Object.assign(MV.ru,{ty_forms:'Форма',ty_forms_l:'Другая форма слова (больница → в больнице)',ty_forms_none:'Других форм этого слова в словаре не найдено.',ty_forms_note:'Нажмите нужную форму — она заменит последнее слово. Удержание — послушать.',
+  pr_pb_b:'Распечатать таблицу «По буквам»',pr_card_b:'🖨 Распечатать карточку',pr_pb_t:'Разговор по буквам',pr_yes:'ДА',pr_no:'НЕТ',pr_dk:'НЕ ЗНАЮ',pr_ctl:['␣ Пробел','⌫ Стереть','✔ Конец'],pr_phrase:'Фраза',
+  pr_how_t:'Как пользоваться (для помощника)',pr_how:['Договоритесь о знаке «да» (моргнуть, кивнуть, посмотреть вверх) и «нет».','Называйте или показывайте строки по очереди: «Первая? Вторая?…» Человек подаёт знак на нужной строке.','Затем называйте буквы этой строки — человек подаёт знак на нужной. Записывайте буквы внизу.','Когда слово уже понятно — спросите: «Это слово „…“?» — дописывать до конца не обязательно.','Последняя строка — чтобы начать новое слово, стереть ошибку или закончить фразу. Цифры — для чисел и номеров.'],
+  pr_cut:'Карточка для кошелька: вырежьте по пунктиру и сложите пополам.',b_pr_pb:'🖨 Распечатать таблицу «По буквам»'});
+Object.assign(MV.en,{ty_forms:'Form',ty_forms_l:'Another form of the word (go → goes, going)',ty_forms_none:'No other forms of this word found in the dictionary.',ty_forms_note:'Tap the form you need — it replaces the last word. Press and hold to listen.',
+  pr_pb_b:'Print the letter board',pr_card_b:'🖨 Print the card',pr_pb_t:'Talking letter by letter',pr_yes:'YES',pr_no:'NO',pr_dk:'DON’T KNOW',pr_ctl:['␣ Space','⌫ Delete','✔ End'],pr_phrase:'Phrase',
+  pr_how_t:'How to use it (for the helper)',pr_how:['Agree on a sign for “yes” (blink, nod, look up) and for “no”.','Name or point to the rows one by one: “First? Second?…” The person signals at the right row.','Then name the letters of that row — the person signals at the right one. Write the letters down below.','When the word is clear, ask: “Is the word „…“?” — no need to spell it to the end.','The last row is for starting a new word, deleting a mistake or ending the phrase. Digits are for numbers.'],
+  pr_cut:'Wallet card: cut along the dashed line and fold in half.',b_pr_pb:'🖨 Print the letter board'});
+MV_HELP.uk.type[1].push('🔄 «Форма» — інша форма останнього слова: вибрали «лікарня», а потрібно «у лікарні» — натисніть «🔄 Форма» на початку рядка підказок (з’являється, коли слово закінчене) і виберіть «лікарні». Застосунок шукає в словнику слова з тією ж основою й іншим закінченням; після «у», «до», «з», «я», «ти»… першими йдуть форми, які зазвичай стоять після цього слова. Форми зі зміною букв в основі (рука — руці) не знаходяться — їх можна набрати.');
+MV_HELP.ru.type[1].push('🔄 «Форма» — другая форма последнего слова: выбрали «больница», а нужно «в больнице» — нажмите «🔄 Форма» в начале строки подсказок (появляется, когда слово закончено) и выберите «больнице». Приложение ищет в словаре слова с той же основой и другим окончанием; после «в», «до», «с», «я», «ты»… первыми идут формы, которые обычно стоят после этого слова. Формы с изменением букв в основе (рука — руке, друг — друзья) не находятся — их можно набрать.');
+MV_HELP.en.type[1].push('🔄 “Form” — another form of the last word: you chose “go” but need “goes” — tap “🔄 Form” at the start of the suggestion row (it appears once the word is finished) and pick it. The app looks in the dictionary for words with the same stem and another ending; after “he”, “to”, “is”… the usual forms come first. Irregular forms (go — went) are not found — type them.');
+MV_HELP.uk.pb[1].push('🖨 Паперова таблиця: кнопка «Роздрукувати таблицю» внизу екрана (або ⚙️ → «⌨️ Писати і швидкі репліки»). На аркуші — ті самі рядки літер, «ТАК / НІ / НЕ ЗНАЮ», цифри й коротка інструкція для помічника. Знадобиться, коли телефон сів, у лікарні або для людини, яка не користується застосунком. У Chrome на телефоні можна вибрати принтер або «Зберегти як PDF».');
+MV_HELP.ru.pb[1].push('🖨 Бумажная таблица: кнопка «Распечатать таблицу» внизу экрана (или ⚙️ → «⌨️ Писать и быстрые реплики»). На листе — те же строки букв, «ДА / НЕТ / НЕ ЗНАЮ», цифры и короткая инструкция для помощника. Пригодится, когда телефон сел, в больнице или для человека, который не пользуется приложением. В Chrome на телефоне можно выбрать принтер или «Сохранить как PDF».');
+MV_HELP.en.pb[1].push('🖨 Paper board: the “Print the letter board” button at the bottom of the screen (or ⚙️ → “⌨️ Typing and quick replies”). The sheet has the same letter rows, “YES / NO / DON’T KNOW”, digits and short instructions for the helper. Useful when the phone is flat, in hospital, or for someone who does not use the app. In Chrome on the phone choose a printer or “Save as PDF”.');
+MV_HELP.uk.card[1].push('🖨 Роздрукувати: кнопка 🖨 у картці або ⚙️ → «🪪 Екстрена картка» → «Роздрукувати картку». На аркуші — картка на всю сторінку й маленька картка для гаманця (виріжте по пунктиру й складіть навпіл). Друкується завжди чорним на білому.');
+MV_HELP.ru.card[1].push('🖨 Распечатать: кнопка 🖨 в карточке или ⚙️ → «🪪 Экстренная карточка» → «Распечатать карточку». На листе — карточка на всю страницу и маленькая карточка для кошелька (вырежьте по пунктиру и сложите пополам). Печатается всегда чёрным на белом.');
+MV_HELP.en.card[1].push('🖨 Print: the 🖨 button on the card or ⚙️ → “🪪 Emergency card” → “Print the card”. The sheet has a full-page card and a small wallet card (cut along the dashed line and fold in half). Always printed black on white.');
 
 /* ==========================================================================
    «Мій голос» — то, чего нет в Govorim:
@@ -5451,7 +5521,9 @@ function tySugFill(d){
     return;
   }
   d.classList.remove('onl');
-  const ws=tySuggest(tyText,tySugN()-(on?1:0));
+  const fm=tyFormsOk();
+  const ws=tySuggest(tyText,tySugN()-(on?1:0)-(fm?1:0));
+  if(fm){const b=h('button','chip tyfm','🔄 '+u('ty_forms'),tyFormsOpen);b.id='tyFormsBtn';b.setAttribute('aria-label',u('ty_forms_l'));d.append(b)}
   ws.forEach(w=>d.append(h('button','chip tyw',w,()=>tyPick(w))));
   if(on){
     const g=h('button','chip tyglobe','🌐',async()=>{
@@ -5461,7 +5533,7 @@ function tySugFill(d){
     });
     g.setAttribute('aria-label',u('wOnline'));d.append(g);
   }
-  d.classList.toggle('empty',!ws.length&&!on);
+  d.classList.toggle('empty',!ws.length&&!on&&!fm);
 }
 // Кнопки над клавиатурой: «⌫ Слово», 🗑, «⭐ Сохранить», «↶ Вернуть», «Мои фразы», «⋯» (раскладка и т. п.)
 function tyActFill(r){
@@ -6221,6 +6293,162 @@ function mvStartup(){
   if(settings.start==='type'){tyOpen(false);return true}
   return false;
 }
+
+/* ======================= v11: формы слова (🔄) и печать (🖨) ======================= */
+// Формы слова без морфологического словаря: та же основа + типичное окончание (и у исходного слова, и у формы).
+// Слова берутся из частотного словаря, фраз приложения, ваших и выученных слов. Чередования (рука — руці) не находятся.
+const FORM_END={
+  uk:"а я о е є и і ї у ю ь ом ем єм ою ею єю ам ям ами ями ах ях ів їв ей ові еві єві ий ій ого ього ому ьому им ім их іх ими іми ої ую юю ти ть еш єш иш їш емо ємо имо їмо ете єте ите їте уть ють ать ять ить їть в ла ло ли",
+  ru:"а я о е ы и у ю ь ом ем ой ей ою ею ам ям ами ями ах ях ов ев ий ый ая яя ое ее ые ие ого его ому ему ым им ых их ыми ими ую юю ть ешь ет ете ут ют ишь ит ите ат ят л ла ло ли",
+  en:"s es ed d ing er ers est ly 's"
+};
+// Окончания только глаголов: у существительного/прилагательного их не предлагаем (вода → не «водить»)
+const FORM_VERB={uk:'ти ть еш єш иш їш емо ємо имо їмо ете єте ите їте уть ють ать ять ить їть в ла ло ли',ru:'ть ешь ет ете ут ют ишь ит ите ат ят л ла ло ли',en:''};
+const FORM_VSET={};const formVerb=l=>FORM_VSET[l]||(FORM_VSET[l]=new Set((FORM_VERB[l]||'').split(' ').filter(Boolean)));
+const FORM_SET={};
+const formEnds=l=>FORM_SET[l]||(FORM_SET[l]=new Set(['',...(FORM_END[l]||'').split(' ')]));
+// Какие окончания вероятнее после предыдущего слова (предлог, местоимение)
+const FORM_CTX={
+  uk:[[['у','в','на','при','по'],'і ї у ю ах ях ому ім ій их'],[['до','без','для','від','біля','після','крім','серед','коло','навколо','замість','щодо'],'и і ї а я у ю ів їв ей ого ої их'],[['з','із','зі','над','під','перед','за','між','поруч'],'ом ем єм ою ею єю ами ями им ім ими іми'],[['я'],'у ю ла в'],[['ти'],'еш єш иш їш ла в'],[['він','вона','воно'],'е є ить їть ла ло в'],[['ми'],'емо ємо имо їмо ли'],[['ви'],'ете єте ите їте ли'],[['вони'],'уть ють ать ять ли']],
+  ru:[[['в','во','на','о','об','при'],'е и у ах ях ом ем ой ей ых их'],[['у','до','без','для','от','из','около','после','кроме','вместо','возле'],'а я ы и ов ев ей ого его ой ых их'],[['с','со','над','под','перед','за','между'],'ом ем ой ей ою ею ами ями ым им ыми ими'],[['к','ко','по'],'у ю е и ам ям ому ему ой ей'],[['я'],'у ю л ла'],[['ты'],'ешь ишь л ла'],[['он','она','оно'],'ет ит л ла ло'],[['мы'],'ем им ли'],[['вы'],'ете ите ли'],[['они'],'ут ют ат ят ли']],
+  en:[[['he','she','it'],"s es ed"],[['i','you','we','they','to','will','can','must'],""],[['am','is','are','was','were'],"ing ed"],[['the','a','an','my','your','his','her','our','their'],"s es er est"]]
+};
+const tyNorm=w=>String(w||'').toLowerCase().replace(/ё/g,'е').replace(/[’ʼ]/g,"'");
+let formsC={k:'',v:null};
+function formsVocab(){
+  const lx=getLex(),M=tyModel(),Us=tyUser(),k=lang+'|'+(lx?lx.words.length:0)+'|'+M.w.size+'|'+Object.keys(Us.w).length;
+  if(formsC.k===k)return formsC.v;
+  const s=new Set();if(lx)lx.words.forEach(w=>s.add(w));M.w.forEach((c,w)=>s.add(w));Object.keys(Us.w).forEach(w=>s.add(w));
+  try{getLearned(lang).forEach(w=>s.add(tyNorm(w)))}catch(_){}
+  formsC={k,v:[...s]};return formsC.v;
+}
+// Последнее слово фразы: {w, i, len}
+function tyLastWord(text){const m=/([\p{L}'’ʼ-]+)[^\p{L}'’ʼ-]*$/u.exec(text||'');return m?{w:m[1],i:m.index,len:m[1].length}:null}
+function wordForms(word,prev,n){
+  n=n||24;const w=tyNorm(word),E=formEnds(lang);
+  if([...w].length<3||!FORM_END[lang])return [];
+  const minB=lang==='en'?3:3,bases=[];
+  for(let k=Math.max(minB,w.length-4);k<=w.length;k++)if(E.has(w.slice(k)))bases.push(w.slice(0,k));
+  if(!bases.length)return [];
+  const lx=getLex(),M=tyModel(),Us=tyUser(),voc=formsVocab(),sc=new Map();
+  const ctx=new Set();(FORM_CTX[lang]||[]).forEach(([ps,es])=>{if(prev&&ps.includes(prev))es.split(' ').forEach(e=>ctx.add(e))});
+  const isCtx=v=>ctx.size&&bases.some(b=>v.startsWith(b)&&ctx.has(v.slice(b.length))&&(v.length>b.length||ctx.has('')));
+  voc.forEach(v=>{
+    if(v===w)return;
+    for(const b of bases){
+      if(v.length>b.length+4||!v.startsWith(b)||!E.has(v.slice(b.length)))continue;
+      const VS=formVerb(lang);if(VS.size&&!VS.has(w.slice(b.length))&&!['у','ю'].includes(w.slice(b.length))&&VS.has(v.slice(b.length)))continue;
+      let s=lx&&lx.rank.has(v)?2.5/(1+lx.rank.get(v)/400):0.3;
+      s+=Math.min(M.w.get(v)||0,20)/5+4*Math.min(Us.w[v]||0,20);
+      if(prev){s+=12*(Us.b[prev+' '+v]||0)+3*Math.min(M.b.get(prev+' '+v)||0,10)}
+      if(isCtx(v))s+=6;
+      sc.set(v,Math.max(sc.get(v)||0,s));break;
+    }
+  });
+  return [...sc.entries()].sort((a,b)=>b[1]-a[1]||a[0].length-b[0].length).map(x=>x[0]).slice(0,n);
+}
+function tyFormsOpen(){
+  const lw=tyLastWord(tyText);if(!lw)return;
+  const before=tyText.slice(0,lw.i),pw=tyWords(before),sentEnd=/[.!?]\s*$/.test(before)||!before.trim();
+  tyFL={forms:{...lw,prev:sentEnd?'':(pw[pw.length-1]||'')}};tyMy=false;renderType(true);
+}
+function tyFormPick(v){
+  const f=tyFL&&tyFL.forms;if(!f)return;
+  const cur=tyText.slice(f.i,f.i+f.len);
+  if(lang==='en'&&v==='i')v='I';
+  const cap=cur.charAt(0)!==cur.charAt(0).toLocaleLowerCase(lang);
+  const prev=tyText;tyText=tyText.slice(0,f.i)+(cap?capFirst(v):v)+tyText.slice(f.i+f.len);
+  if(!/\s$/.test(tyText)&&f.i+f.len>=prev.replace(/\s+$/,'').length)tyText+=' ';
+  tyUndo=prev;tyFL=null;renderType(true);
+}
+function tyFormsPanel(){
+  const f=tyFL.forms,d=h('div','tyfl tyforms');
+  const hd=h('div','tyflh');
+  const bk=h('button','tyb',null,()=>{tyFL=null;renderType(true)});bk.append(h('span',null,'⌨️ '+u('ty_fl_back')));bk.id='tyFormsBack';
+  hd.append(bk,h('span','tyflp','🔄 '+tyText.slice(f.i,f.i+f.len)));
+  const top=h('div','tyfltop');top.append(hd);d.append(top);
+  const ws=wordForms(tyText.slice(f.i,f.i+f.len),f.prev);
+  if(!ws.length){d.append(h('p','note',u('ty_forms_none')));return d}
+  const g=h('div','tyflw');
+  ws.forEach(w=>g.append(wordBtn(lang==='en'&&w==='i'?'I':w,()=>tyFormPick(w),()=>sayWord(w))));
+  d.append(g,h('p','note tyformsn',u('ty_forms_note')));   // пояснение под словами: на низком экране слова видны сразу
+  return d;
+}
+// Встраивание: панель форм вместо клавиатуры, кнопка 🔄 в ряду над клавиатурой
+const _tyFLPanel=tyFLPanel;
+tyFLPanel=function(){return tyFL&&tyFL.forms?tyFormsPanel():_tyFLPanel()};
+// Кнопка 🔄 — первой в строке подсказок, когда последнее слово закончено (после пробела); в ряду кнопок места нет при 277 px
+function tyFormsOk(){if(settings.tySys||!FORM_END[lang]||tyCtx(tyText).pre)return false;const lw=tyLastWord(tyText);return !!lw&&[...lw.w].length>=3}
+/* ---------- 🖨 Печать: таблица «По буквам» и экстренная карточка ----------
+   Бумажная копия — на случай, когда телефон сел, в больнице, для помощника без приложения. Печать — window.print():
+   в Chrome на Android — принтер или «Сохранить как PDF». Без сети и библиотек. */
+function mvPrint(kind){
+  const old=$('#printArea');if(old)old.remove();
+  const d=h('div',null);d.id='printArea';d.lang=lang;
+  if(kind==='pb')prPb(d);else prCard(d);
+  d.append(h('div','prfoot',uh('title')+' · bispalov.github.io/MyVoice'));
+  document.body.append(d);document.body.classList.add('mvprint');
+  const done=()=>{window.removeEventListener('afterprint',done);document.body.classList.remove('mvprint');const x=$('#printArea');if(x)x.remove()};
+  window.addEventListener('afterprint',done);
+  logPhrase('🖨 '+(kind==='pb'?u('pb_title'):u('c_title')));
+  setTimeout(()=>{try{window.print()}catch(_){done()}},60);
+}
+function prPb(d){
+  d.className='prpb';
+  d.append(h('h1',null,'👁 '+u('pr_pb_t')));
+  const yn=h('div','pryn');[['y','pr_yes'],['n','pr_no'],['d','pr_dk']].forEach(([c,k])=>yn.append(h('div','pryb '+c,u(k))));d.append(yn);
+  const t=h('table','prtab');
+  PB_ROWS[lang].forEach((r,i)=>{
+    const tr=h('tr');tr.append(h('th',null,String(i+1)));
+    const cs=[...r];for(let k=0;k<6;k++)tr.append(h('td',null,cs[k]?(cs[k]==="'"?'’':cs[k].toLocaleUpperCase(lang)):''));
+    t.append(tr);
+  });
+  const c=h('tr','ctl');c.append(h('th',null,String(PB_ROWS[lang].length+1)));
+  (u('pr_ctl')||[]).forEach(x=>{const td=h('td',null,x);td.colSpan=2;c.append(td)});t.append(c);
+  const dg=h('tr','dig');dg.append(h('th',null,'123'));const td=h('td',null,'1 2 3 4 5 6 7 8 9 0');td.colSpan=6;dg.append(td);t.append(dg);
+  d.append(t);
+  d.append(h('h2',null,uh('pr_how_t')));
+  const ol=h('ol','prhow');(uh('pr_how')||[]).forEach(x=>ol.append(h('li',null,x)));d.append(ol);
+  d.append(h('div','prline',u('pr_phrase')+':'),h('div','prline'));
+}
+function prCardFields(box,keys){
+  const c=settings.card;
+  const fld=(k,v)=>{v=String(v||'').trim();if(!v)return;const r=h('div','prf');r.append(h('div','prl',u(k)),h('div','prv',v));box.append(r)};
+  keys.forEach(k=>{
+    if(k==='sos'){if(!c.sos)return;const ph=(settings.sos||[]).filter(x=>x&&x.t);if(ph.length)fld('c_contacts',ph.map(x=>(x.n?x.n+': ':'')+x.t).join('\n'));return}
+    fld({name:'c_name',dx:'c_dx',meds:'c_meds',allergy:'c_allergy',notes:'c_notes'}[k],c[k]);
+  });
+}
+function prCard(d){
+  const c=settings.card;d.className='prcard';
+  const big=h('div','prbig');
+  big.append(h('h1',null,'🪪 '+u('c_title')),h('div','prmain',c.main.trim()||u('c_main_def')));
+  prCardFields(big,['name','dx','meds','allergy','sos','notes']);
+  d.append(big);
+  // для кошелька: две половины по 85×54 мм, вырезать по пунктиру и сложить
+  const wl=h('div','prwal');
+  wl.append(h('p','prcut','✂ '+uh('pr_cut')));
+  const fr=h('div','prw front');fr.append(h('div','prwh','🪪 '+u('c_title')),h('div','prwm',c.main.trim()||u('c_main_def')));prCardFields(fr,['name']);
+  const bk=h('div','prw back');prCardFields(bk,['dx','meds','allergy','sos','notes']);
+  if(!bk.childNodes.length)bk.append(h('div','prwm',c.main.trim()||u('c_main_def')));
+  wl.append(fr,bk);d.append(wl);
+}
+// Кнопки печати: на «По буквам» (под подсказкой для помощника), в окне карточки, в настройках
+const _renderPb=renderPb;
+renderPb=function(){
+  _renderPb();
+  const w=$('.pbwrap');if(!w)return;
+  const b=h('button','tyb prbtn','🖨 '+uh('pr_pb_b'),()=>mvPrint('pb'));b.id='pbPrint';w.append(b);
+};
+const _cardOpen=cardOpen;
+cardOpen=function(){
+  _cardOpen();
+  const r=$('#card .row');if(!r)return;
+  const b=h('button','cdb pr','🖨',()=>mvPrint('card'));b.id='cardPrint';b.setAttribute('aria-label',uh('pr_card_b'));
+  r.insertBefore(b,r.lastChild);
+};
+$('#pbPrintBtn').onclick=()=>mvPrint('pb');
+$('#cardPrintBtn').onclick=()=>{mvSettSave();try{localStorage.setItem('mv.settings',JSON.stringify(settings))}catch(_){}mvPrint('card')};
 
 /* ---------- Подписи интерфейса на выбранном языке ---------- */
 function fill(sel,opts,val){const el=$(sel);el.innerHTML='';opts.forEach(([v,txt])=>el.append(new Option(txt,v)));el.value=val}

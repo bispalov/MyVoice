@@ -750,6 +750,9 @@ body.pbmode #quick{display:none}
     <select id="setBarLbl"></select>
     <label class="chk"><input type="checkbox" id="setWordTap"><span data-i="s_wordtap"></span></label>
     <label class="chk"><input type="checkbox" id="setVib"><span data-i="s_vib"></span></label>
+    <label data-i="s_tapsound"></label>
+    <select id="setTapSound"></select>
+    <p class="note" id="tapSoundNote"></p>
     <label class="chk"><input type="checkbox" id="setAwake"><span data-i="s_awake"></span></label>
   </div></div>
   <div class="sg" data-g="mic"><button class="sgh" type="button" data-t="g_mic"></button><div class="sgb">
@@ -806,7 +809,7 @@ body.pbmode #quick{display:none}
 <div id="diary" class="modal"></div>
 
 <script>
-const APP_VERSION = 12;   // держите в соответствии с V = 'govorim-v70' в sw.js
+const APP_VERSION = 13;   // держите в соответствии с V = 'govorim-v70' в sw.js
 // Логин автора на GitHub: ссылки «Автор» и «Исходный код» в ⚙️ → «ℹ️ О приложении» (работают и в копиях на других сайтах).
 // Если оставить пустым, логин берётся из адреса <логин>.github.io.
 const APP_AUTHOR_GH = 'bispalov';
@@ -2849,6 +2852,7 @@ document.addEventListener('click',e=>{
   if(g&&now-lastTap<g){e.stopPropagation();e.preventDefault();return}   // слишком быстрое повторное касание
   lastTap=now;
   if(settings.vib&&navigator.vibrate){try{navigator.vibrate(20)}catch(_){}}
+  if(settings.tapSound&&!rec&&!rec2)tapClick(settings.tapSound);   // щелчок только у принятого нажатия; пока идёт распознавание — нет (попал бы в микрофон)
 },true);
 
 /* ---------- Системная кнопка «Назад» Android работает как ↩ в приложении ----------
@@ -5262,6 +5266,13 @@ MV_HELP.en.card[1].push('🖨 Print: the 🖨 button on the card or ⚙️ → �
 Object.assign(MV.uk,{pr_b:'Роздрукувати',pdf_b:'Зберегти PDF',pdf_card_b:'Зберегти картку в PDF',pdf_saved:'Збережено: {f} — у папці «Завантаження»',pdf_err:'Не вдалося зберегти PDF',b_pdf_pb:'💾 Зберегти таблицю «По літерах» у PDF',b_pdf_card:'💾 Зберегти картку в PDF'});
 Object.assign(MV.ru,{pr_b:'Распечатать',pdf_b:'Сохранить PDF',pdf_card_b:'Сохранить карточку в PDF',pdf_saved:'Сохранено: {f} — в папке «Загрузки»',pdf_err:'Не удалось сохранить PDF',b_pdf_pb:'💾 Сохранить таблицу «По буквам» в PDF',b_pdf_card:'💾 Сохранить карточку в PDF'});
 Object.assign(MV.en,{pr_b:'Print',pdf_b:'Save PDF',pdf_card_b:'Save the card as PDF',pdf_saved:'Saved: {f} — in the Downloads folder',pdf_err:'Could not save the PDF',b_pdf_pb:'💾 Save the letter board as PDF',b_pdf_card:'💾 Save the card as PDF'});
+// v13: звук нажатия кнопок
+Object.assign(MV.uk,{s_tapsound:'Звук під час натискання кнопок',ts_opts:['вимкнено','тихий','гучний'],ts_note:'Коротке низьке клацання — його легше почути при зниженому слуху. Поки ввімкнено мікрофон, клацання немає.'});
+Object.assign(MV.ru,{s_tapsound:'Звук при нажатии кнопок',ts_opts:['выключен','тихий','громкий'],ts_note:'Короткий низкий щелчок — его легче расслышать при снижении слуха. Пока включён микрофон, щелчка нет.'});
+Object.assign(MV.en,{s_tapsound:'Sound on button taps',ts_opts:['off','quiet','loud'],ts_note:'A short low click — easier to hear with hearing loss. No click while the microphone is on.'});
+MV_HELP.uk.sel[1].push('🔊 Звук під час натискання — у тій самій групі, поруч із вібрацією: вимкнено (за замовчуванням), тихий або гучний. Коротке низьке клацання підтверджує, що натискання прийнято, — разом із вібрацією або замість неї (вібрація працює, лише якщо ввімкнена в самому телефоні). Відхилене натискання (коротке торкання при виборі утриманням, надто швидке повторне) не клацає; кнопки в налаштуваннях і довідці теж; поки ввімкнено мікрофон 🎤, клацання немає.');
+MV_HELP.ru.sel[1].push('🔊 Звук при нажатии — в той же группе, рядом с вибрацией: выключен (по умолчанию), тихий или громкий. Короткий низкий щелчок подтверждает, что нажатие принято, — вместе с вибрацией или вместо неё (вибрация работает, только если включена в самом телефоне). Отклонённое нажатие (короткое касание при выборе удержанием, слишком быстрое повторное) не щёлкает; кнопки в настройках и справке тоже; пока включён микрофон 🎤, щелчка нет.');
+MV_HELP.en.sel[1].push('🔊 Tap sound — in the same group, next to vibration: off (default), quiet or loud. A short low click confirms the tap was accepted, together with vibration or instead of it (vibration works only if it is on in the phone itself). A rejected tap (a short touch with hold-to-select, a too-quick repeat) does not click, nor do buttons in Settings and Help; no click while the microphone 🎤 is on.');
 
 /* ==========================================================================
    «Мій голос» — то, чего нет в Govorim:
@@ -6199,7 +6210,7 @@ const _settSum=settSum;
 settSum=function(g){
   switch(g){
     case 'main':return selTxt('#setProfile')+' · '+selTxt('#setLang')+($('#setTourOffer').checked?' · 🎓':'');
-    case 'touch':return uh('sm_selmode')+': '+selTxt('#setSelMode')+' · '+uh('sm_guard')+': '+selTxt('#setGuard')+' · '+selTxt('#setHand');
+    case 'touch':return uh('sm_selmode')+': '+selTxt('#setSelMode')+' · '+uh('sm_guard')+': '+selTxt('#setGuard')+' · '+selTxt('#setHand')+(+$('#setTapSound').value?' · 🔊 '+selTxt('#setTapSound'):'');
     case 'type':return uh($('#setStart').value==='type'?'sm_type_type':'sm_type_tiles')+' · '+selTxt('#setKbLayout')+' · '+($('#setTyFirst').checked?uh('sm_tyfirst')+' · ':'')+uh('sm_quickbar')+': '+onOff('#setQuickBar')+($('#setAutoShow').checked?' · '+uh('sm_autoshow'):'');
     case 'card':return ['#setCardName','#setCardDx','#setCardMeds','#setCardAllergy','#setCardNotes','#setCardMain'].some(q=>$(q).value.trim())?uh('sm_card_on'):uh('sm_card_off');
     case 'mic':return uh('sm_auto')+': '+onOff('#setShowAuto')+($('#setClipAuto').checked?' · 📋':'');
@@ -6572,6 +6583,37 @@ cardOpen=function(){
 };
 $('#pbPdfBtn').onclick=()=>mvSavePdf('pb');
 $('#cardPdfBtn').onclick=()=>{mvSettSave();try{localStorage.setItem('mv.settings',JSON.stringify(settings))}catch(_){}mvSavePdf('card')};
+
+/* ======================= v13: звук нажатия кнопок (перенос из SpeechRehab v92) =======================
+   Короткий низкий щелчок (600→380 Гц, ~50 мс) — при возрастной потере слуха хуже слышны высокие звуки.
+   Без файлов, WebAudio. Звучит в общем обработчике click после всех проверок (удержание, долгое нажатие, защита
+   от быстрых повторов) — отклонённое нажатие не щёлкает; кнопки внутри .modal (настройки, справка) не щёлкают;
+   во время распознавания (rec / rec2) щелчка нет. settings.tapSound: 0 — выкл. (по умолчанию), 1 — тихий, 2 — громкий. */
+let tapCtx=null;
+function tapClick(level){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+    if(!tapCtx)tapCtx=new AC();
+    if(tapCtx.state==='suspended')tapCtx.resume();
+    const t0=tapCtx.currentTime,o=tapCtx.createOscillator(),g=tapCtx.createGain();
+    o.type='triangle';o.frequency.setValueAtTime(600,t0);o.frequency.exponentialRampToValueAtTime(380,t0+0.045);
+    g.gain.setValueAtTime(level>=2?0.55:0.18,t0);g.gain.exponentialRampToValueAtTime(0.001,t0+0.05);
+    o.connect(g);g.connect(tapCtx.destination);o.start(t0);o.stop(t0+0.06);
+  }catch(e){}
+}
+if(![0,1,2].includes(settings.tapSound))settings.tapSound=0;
+const _mvSettLoad13=mvSettLoad;
+mvSettLoad=function(){_mvSettLoad13();$('#setTapSound').value=String(settings.tapSound||0)};
+const _mvSettSave13=mvSettSave;
+mvSettSave=function(){_mvSettSave13();const v=+$('#setTapSound').value;settings.tapSound=[0,1,2].includes(v)?v:0};
+const _applyI18n13=applyI18n;
+applyI18n=function(){
+  _applyI18n13();
+  const o=uh('ts_opts')||['off','quiet','loud'];
+  fill('#setTapSound',o.map((t,i)=>[String(i),t]),$('#sett').style.display==='block'?($('#setTapSound').value||String(settings.tapSound||0)):String(settings.tapSound||0));
+  const n=$('#tapSoundNote');if(n)n.textContent=uh('ts_note');
+};
+$('#setTapSound').addEventListener('change',e=>{const v=+e.target.value;if(v)tapClick(v)});   // образец щелчка при выборе
 
 /* ---------- Подписи интерфейса на выбранном языке ---------- */
 function fill(sel,opts,val){const el=$(sel);el.innerHTML='';opts.forEach(([v,txt])=>el.append(new Option(txt,v)));el.value=val}

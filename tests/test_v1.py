@@ -74,7 +74,8 @@ with sync_playwright() as p:
     pg.click('#tySug .tyw:text-is("хочу")')
     check('picked word', pg.inner_text('#tyBox').strip() == 'Я хочу', pg.inner_text('#tyBox'))
     sug2 = pg.eval_on_selector_all('#tySug .tyw', 'e=>e.map(x=>x.textContent)')
-    check('next word after хочу', len(sug2) >= 3 and any(w in sug2 for w in ['пити', 'їсти', 'спати', 'додому']), sug2)
+    # с v11 первое место в строке занимает «🔄 Форма» (слово закончено)
+    check('next word after хочу', len(sug2) + pg.locator('#tySug #tyFormsBtn').count() >= 3 and any(w in sug2 for w in ['пити', 'їсти', 'спати', 'додому']), sug2)
     pg.click('#tySug .tyw >> nth=0'); w1 = sug2[0]
     check('next word inserted', pg.inner_text('#tyBox').strip() == 'Я хочу ' + w1)
     # стереть слово и вернуть

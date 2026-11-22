@@ -630,6 +630,18 @@ body.pbmode #quick{display:none}
 #card .cdb.pr{flex:0 0 60px}
 @media (max-width:340px){.prrow{flex-direction:column}}
 .prrow .prbtn{overflow-wrap:normal;word-break:normal}
+
+/* v14: окно «в этом браузере часть функций не работает» — тёмное, крупное, пункты в жёлтой рамке */
+#brw{position:fixed;inset:0;z-index:96;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:10px;overflow:auto;overscroll-behavior:contain}
+#brw .brwbox{background:#151C24;color:#F3F5F7;border:2px solid #3A4654;border-radius:16px;padding:16px;max-width:520px;width:100%;max-height:100%;overflow:auto;box-sizing:border-box;font-size:clamp(16px,4.6vw,19px);line-height:1.4}
+#brw h2{margin:0 0 10px;font-size:1.15em;color:#FFE27A}
+#brw .brwi{margin:0 0 10px;padding:10px 12px;border:3px solid #F2B705;border-radius:12px}
+#brw .brwn{margin:6px 0 12px;opacity:.9}
+#brw .brwrow{display:flex;flex-wrap:wrap;gap:10px}
+#brw .brwrow>*{flex:1 1 180px;min-height:56px;display:flex;align-items:center;justify-content:center;text-align:center;border-radius:12px;font:inherit;font-weight:700;padding:8px 12px;box-sizing:border-box}
+#brw .brwgo{background:#1A3A5C;color:#fff;border:3px solid #8EC5FF;text-decoration:none}
+#brw .brwok{background:#1E6B45;color:#fff;border:3px solid #9BE7BC}
+.abbrw{font-weight:600}
 </style>
 </head>
 <body>
@@ -809,7 +821,7 @@ body.pbmode #quick{display:none}
 <div id="diary" class="modal"></div>
 
 <script>
-const APP_VERSION = 13;   // держите в соответствии с V = 'govorim-v70' в sw.js
+const APP_VERSION = 14;   // держите в соответствии с V = 'govorim-v70' в sw.js
 // Логин автора на GitHub: ссылки «Автор» и «Исходный код» в ⚙️ → «ℹ️ О приложении» (работают и в копиях на других сайтах).
 // Если оставить пустым, логин берётся из адреса <логин>.github.io.
 const APP_AUTHOR_GH = 'bispalov';
@@ -5273,6 +5285,34 @@ Object.assign(MV.en,{s_tapsound:'Sound on button taps',ts_opts:['off','quiet','l
 MV_HELP.uk.sel[1].push('🔊 Звук під час натискання — у тій самій групі, поруч із вібрацією: вимкнено (за замовчуванням), тихий або гучний. Коротке низьке клацання підтверджує, що натискання прийнято, — разом із вібрацією або замість неї (вібрація працює, лише якщо ввімкнена в самому телефоні). Відхилене натискання (коротке торкання при виборі утриманням, надто швидке повторне) не клацає; кнопки в налаштуваннях і довідці теж; поки ввімкнено мікрофон 🎤, клацання немає.');
 MV_HELP.ru.sel[1].push('🔊 Звук при нажатии — в той же группе, рядом с вибрацией: выключен (по умолчанию), тихий или громкий. Короткий низкий щелчок подтверждает, что нажатие принято, — вместе с вибрацией или вместо неё (вибрация работает, только если включена в самом телефоне). Отклонённое нажатие (короткое касание при выборе удержанием, слишком быстрое повторное) не щёлкает; кнопки в настройках и справке тоже; пока включён микрофон 🎤, щелчка нет.');
 MV_HELP.en.sel[1].push('🔊 Tap sound — in the same group, next to vibration: off (default), quiet or loud. A short low click confirms the tap was accepted, together with vibration or instead of it (vibration works only if it is on in the phone itself). A rejected tap (a short touch with hold-to-select, a too-quick repeat) does not click, nor do buttons in Settings and Help; no click while the microphone 🎤 is on.');
+// v14: браузеры
+Object.assign(MV.uk,{brw_t:'У цьому браузері частина функцій не працює',
+  brw_tts:'🔊 Озвучення не працює: застосунок не зможе говорити за вас. Відкрийте його в Chrome.',
+  brw_voice:'🔊 На телефоні немає голосу для мови «{l}»: фрази можуть звучати з акцентом або не прозвучати. Голос можна встановити в налаштуваннях телефона («Синтез мовлення» / «Перетворення тексту в мовлення»).',
+  brw_sr:'🎤 Розпізнавання мовлення не працює: 🎤 тут недоступний. Озвучення фраз і все інше працюють.',
+  brw_srpart:'🎤 Розпізнавання мовлення в цьому браузері працює з обмеженнями: може не ввімкнутися або перериватися.',
+  brw_note:'Усе працює в Chrome. Дані (фрази, налаштування) в кожному браузері свої — перенести їх можна через «💾 Зберегти копію даних» (⚙️ → «Дані»).',
+  brw_ok:'Зрозуміло',brw_lim:'з обмеженнями',brw_lang:{uk:'українська',ru:'російська',en:'англійська'},
+  ab_brw:'Цей браузер: розпізнавання мовлення {sr}, озвучення {tts}'});
+Object.assign(MV.ru,{brw_t:'В этом браузере часть функций не работает',
+  brw_tts:'🔊 Озвучка не работает: приложение не сможет говорить за вас. Откройте его в Chrome.',
+  brw_voice:'🔊 На телефоне нет голоса для языка «{l}»: фразы могут звучать с акцентом или не прозвучать. Голос можно установить в настройках телефона («Синтез речи» / «Преобразование текста в речь»).',
+  brw_sr:'🎤 Распознавание речи не работает: 🎤 здесь недоступен. Озвучка фраз и всё остальное работают.',
+  brw_srpart:'🎤 Распознавание речи в этом браузере работает с ограничениями: может не включиться или прерываться.',
+  brw_note:'Всё работает в Chrome. Данные (фразы, настройки) в каждом браузере свои — перенести их можно через «💾 Сохранить копию данных» (⚙️ → «Данные»).',
+  brw_ok:'Понятно',brw_lim:'с ограничениями',brw_lang:{uk:'украинский',ru:'русский',en:'английский'},
+  ab_brw:'Этот браузер: распознавание речи {sr}, озвучка {tts}'});
+Object.assign(MV.en,{brw_t:'Some features do not work in this browser',
+  brw_tts:'🔊 Speech output does not work: the app cannot speak for you. Open it in Chrome.',
+  brw_voice:'🔊 The phone has no voice for “{l}”: phrases may sound accented or not be spoken. You can install a voice in the phone settings (“Text-to-speech output”).',
+  brw_sr:'🎤 Speech recognition does not work: 🎤 is not available here. Speaking phrases and everything else work.',
+  brw_srpart:'🎤 Speech recognition works with limits in this browser: it may not start or may stop.',
+  brw_note:'Everything works in Chrome. Data (phrases, settings) is separate in each browser — move it with “💾 Save a data backup” (⚙️ → “Data”).',
+  brw_ok:'OK',brw_lim:'with limits',brw_lang:{uk:'Ukrainian',ru:'Russian',en:'English'},
+  ab_brw:'This browser: speech recognition {sr}, speech output {tts}'});
+MV_HELP.uk.browser=['🌐 Браузери: що де працює',['Застосунок зроблено для Chrome — там працює все.','🔊 Озвучення (застосунок говорить за вас) працює майже в усіх браузерах, але голос береться з телефона: якщо голосу для української чи російської немає, встановіть його в налаштуваннях телефона («Синтез мовлення» / «Перетворення тексту в мовлення»).','🎤 Розпізнавання мовлення (те, що кажуть близькі): Chrome — ✔ (на Android зазвичай потрібен інтернет); Samsung Internet і Safari на iPhone — з обмеженнями; Firefox, Opera, Edge на телефоні — ✖. Без нього не працює лише 🎤, усе інше працює.','Дані (фрази, плитки, налаштування) в кожному браузері свої — і у вбудованому браузері Facebook, Viber, Telegram теж. Перенести: «💾 Зберегти копію даних» в одному браузері й «Завантажити копію» в іншому.','Що вміє цей браузер — у ⚙️ → «ℹ️ Про застосунок». Якщо щось не працює — спершу відкрийте застосунок у Chrome і подивіться номер версії там само.']];
+MV_HELP.ru.browser=['🌐 Браузеры: что где работает',['Приложение сделано для Chrome — там работает всё.','🔊 Озвучка (приложение говорит за вас) работает почти во всех браузерах, но голос берётся из телефона: если голоса для украинского или русского нет, установите его в настройках телефона («Синтез речи» / «Преобразование текста в речь»).','🎤 Распознавание речи (то, что говорят близкие): Chrome — ✔ (на Android обычно нужен интернет); Samsung Internet и Safari на iPhone — с ограничениями; Firefox, Opera, Edge на телефоне — ✖. Без него не работает только 🎤, всё остальное работает.','Данные (фразы, плитки, настройки) в каждом браузере свои — и во встроенном браузере Facebook, Viber, Telegram тоже. Перенести: «💾 Сохранить копию данных» в одном браузере и «Загрузить копию» в другом.','Что умеет этот браузер — в ⚙️ → «ℹ️ О приложении». Если что-то не работает — сначала откройте приложение в Chrome и посмотрите номер версии там же.']];
+MV_HELP.en.browser=['🌐 Browsers: what works where',['The app is made for Chrome — everything works there.','🔊 Speech output (the app speaks for you) works in almost all browsers, but the voice comes from the phone: if there is no voice for your language, install one in the phone settings (“Text-to-speech output”).','🎤 Speech recognition (what loved ones say): Chrome — ✔ (on Android usually needs the internet); Samsung Internet and Safari on iPhone — with limits; Firefox, Opera, Edge on the phone — ✖. Without it only 🎤 does not work; everything else does.','Data (phrases, tiles, settings) is separate in each browser — including the in-app browser of Facebook, Viber, Telegram. To move it: “💾 Save a data backup” in one browser and “Load a backup” in the other.','What this browser can do — ⚙️ → “ℹ️ About”. If something does not work, first open the app in Chrome and check the version number there.']];
 
 /* ==========================================================================
    «Мій голос» — то, чего нет в Govorim:
@@ -5306,7 +5346,7 @@ for(const l of ['uk','ru','en'])Object.assign(U[l],MV[l]);
 /* ---------- Справка: убрать пункты о «Говорю я», заменить и добавить свои ---------- */
 (function(){
   const drop=['hear','ponline'];
-  const add=[['pb','abc'],['profile','about'],['type','start'],['myph','type'],['quickbar','myph'],['yn','quickbar'],['card','yn'],['sel','touch']];   // [ключ, после какого]
+  const add=[['pb','abc'],['profile','about'],['type','start'],['myph','type'],['quickbar','myph'],['yn','quickbar'],['card','yn'],['sel','touch'],['browser','install']];   // [ключ, после какого]
   const keys=HELP_KEYS.slice();
   for(const l of ['uk','ru','en']){
     const H=U[l].helpDoc,M=MV_HELP[l];let s=H.s.slice(),k=keys.slice();
@@ -5316,7 +5356,7 @@ for(const l of ['uk','ru','en'])Object.assign(U[l],MV[l]);
     H.s=s;if(l==='uk'){HELP_KEYS.length=0;HELP_KEYS.push(...k)}
   }
   delete HELP_CTX.hear;
-  HELP_CTX.show=['show','big','clip','quickbar','msg','resume','tour'];
+  HELP_CTX.show=['show','big','clip','quickbar','msg','resume','browser','tour'];
   delete HELP_CTX.abc;
   HELP_CTX.type=['type','abc','myph','quickbar','sel','dicts','wonline','big','msg','tour'];
   HELP_CTX.pb=['pb','abc','sel','big','msg','tour'];
@@ -6614,6 +6654,88 @@ applyI18n=function(){
   const n=$('#tapSoundNote');if(n)n.textContent=uh('ts_note');
 };
 $('#setTapSound').addEventListener('change',e=>{const v=+e.target.value;if(v)tapClick(v)});   // образец щелчка при выборе
+
+/* ======================= v14: проверка браузера (перенос из SpeechRehab v93) =======================
+   Проверяются возможности, а не название браузера. Здесь озвучка — главное (приложение говорит за человека),
+   поэтому пункты про озвучку и голос идут первыми. 🎤 (что говорят близкие) — второстепенно.
+   Окно — при первом открытии, только если есть проблемы, один раз на набор проблем (mv.brw.seen). */
+function brwCaps(){
+  const ua=navigator.userAgent||'';
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const tts=!!window.speechSynthesis&&typeof window.SpeechSynthesisUtterance==='function';
+  let voice=null;
+  if(tts){try{const vs=speechSynthesis.getVoices()||[];if(vs.length)voice=vs.some(v=>String(v.lang||'').toLowerCase().replace('_','-').startsWith(lang))}catch(_){}}
+  return {sr:SR?(/SamsungBrowser/i.test(ua)?1:2):0,tts,voice,android:/Android/i.test(ua),
+    chrome:/Chrome\//.test(ua)&&!/SamsungBrowser|EdgA|Edg\/|OPR\/|YaBrowser|Firefox|FxiOS|CriOS/.test(ua)};
+}
+function brwProblems(c){
+  const p=[];
+  if(!c.tts)p.push('tts');else if(c.voice===false)p.push('voice-'+lang);
+  if(c.sr===0)p.push('sr');else if(c.sr===1)p.push('srPart');
+  return p;
+}
+function brwOpen(c,probs){
+  const old=$('#brw');if(old)old.remove();
+  const d=h('div',null);d.id='brw';d.setAttribute('role','dialog');d.setAttribute('aria-modal','true');
+  const box=h('div','brwbox');box.append(h('h2',null,uh('brw_t')));
+  const ul=h('div','brwlist');
+  probs.forEach(k=>{
+    let t=k==='tts'?uh('brw_tts'):k==='sr'?uh('brw_sr'):k==='srPart'?uh('brw_srpart'):uh('brw_voice').replace('{l}',uh('brw_lang')[lang]||lang);
+    ul.append(h('p','brwi',t));
+  });
+  box.append(ul,h('p','brwn',uh('brw_note')));
+  const r=h('div','brwrow');
+  const onlyVoice=probs.every(k=>k.startsWith('voice-'));
+  if(c.android&&!c.chrome&&!onlyVoice){
+    const url=location.href.split('#')[0],a=h('a','brwgo','🌐 '+uh('iab_open'));a.id='brwChrome';
+    a.href='intent://'+location.host+location.pathname+location.search+'#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url='+encodeURIComponent(url)+';end';
+    r.append(a);
+  }
+  const ok=h('button','brwok','✔ '+uh('brw_ok'),()=>brwClose(true));ok.id='brwOk';r.append(ok);
+  box.append(r);d.append(box);document.body.append(d);
+  d.dataset.key=probs.slice().sort().join(',');
+  armBack();try{ok.focus({preventScroll:true})}catch(_){}box.scrollTop=0;d.scrollTop=0;   // начало окна (заголовок) видно сразу
+}
+function brwClose(mark){
+  const d=$('#brw');if(!d)return;
+  if(mark!==false){try{localStorage.setItem('mv.brw.seen',d.dataset.key)}catch(_){}}
+  d.remove();
+}
+let brwDone=false;
+function brwMaybe(){
+  if(brwDone)return;
+  if($('#setup')&&$('#setup').style.display!=='none'&&$('#setup').isConnected&&getComputedStyle($('#setup')).display!=='none')return;   // мастер первого запуска — после него
+  if(inAppBrowser())return;   // во встроенном браузере соцсети уже есть жёлтая плашка
+  brwDone=true;
+  const go=()=>{
+    const c=brwCaps(),p=brwProblems(c);if(!p.length)return;
+    const key=p.slice().sort().join(',');let seen='';try{seen=localStorage.getItem('mv.brw.seen')||''}catch(_){}
+    if(seen===key)return;
+    if($('#setup')&&getComputedStyle($('#setup')).display!=='none'){brwDone=false;return}
+    brwOpen(c,p);
+  };
+  // список голосов загружается не сразу: ждём voiceschanged до 1,5 с
+  if(window.speechSynthesis&&typeof speechSynthesis.getVoices==='function'){
+    let fired=false;const fin=()=>{if(fired)return;fired=true;go()};
+    try{if((speechSynthesis.getVoices()||[]).length){fin();return}}catch(_){}
+    try{speechSynthesis.addEventListener('voiceschanged',fin,{once:true})}catch(_){}
+    setTimeout(fin,1500);
+  }else go();
+}
+const _appBack14=appBack;
+appBack=function(){if($('#brw')){brwClose(true);return true}return _appBack14()};
+const _tourQuiet14=tourQuiet;
+tourQuiet=function(){return !$('#brw')&&_tourQuiet14()};
+const _setupDone14=setupDone;
+setupDone=function(){_setupDone14();setTimeout(brwMaybe,300)};
+const _aboutRender14=aboutRender;
+aboutRender=function(){
+  _aboutRender14();const b=$('#aboutBox');if(!b)return;
+  const c=brwCaps(),y='✔',n='✖';
+  const t=uh('ab_brw').replace('{sr}',c.sr===2?y:c.sr===1?uh('brw_lim'):n).replace('{tts}',c.tts?y:n);
+  const p=h('p','abbrw',t);p.id='abBrw';const lic=b.querySelector('.ablic');if(lic)b.insertBefore(p,lic);else b.append(p);
+};
+setTimeout(brwMaybe,400);
 
 /* ---------- Подписи интерфейса на выбранном языке ---------- */
 function fill(sel,opts,val){const el=$(sel);el.innerHTML='';opts.forEach(([v,txt])=>el.append(new Option(txt,v)));el.value=val}

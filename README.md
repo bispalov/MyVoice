@@ -61,6 +61,20 @@
 2. Settings → Pages → гілка `main`, папка `/ (root)`.
 3. Відкрийте `https://<ім’я-користувача>.github.io/MyVoice/`.
 
+### 🌐 Браузери
+
+Застосунок зроблено для **Chrome** — там працює все. В інших браузерах:
+
+| | Chrome (Android, ПК) | Samsung Internet | Safari (iPhone) | Firefox, Opera, Edge на телефоні |
+|---|---|---|---|---|
+| 🔊 Озвучення (застосунок говорить за вас) | ✔ | ✔ | ✔ | ✔ |
+| 🎤 Розпізнавання мовлення (що кажуть близькі) | ✔ (на Android зазвичай потрібен інтернет) | з обмеженнями | з обмеженнями | ✖ |
+
+- Голос для озвучення береться з телефона. Якщо голосу для української чи російської немає — встановіть його в налаштуваннях телефона («Синтез мовлення» / «Перетворення тексту в мовлення»).
+- Без розпізнавання не працює лише 🎤, усе інше працює.
+- Дані (фрази, плитки, налаштування) в кожному браузері свої, у вбудованому браузері Facebook, Viber, Telegram — теж. Перенести: «💾 Зберегти копію даних» → «Завантажити копію».
+- При першому відкритті не в Chrome застосунок сам скаже, що тут не працюватиме (один раз). Що вміє поточний браузер — ⚙️ → «ℹ️ Про застосунок».
+
 ### 🌐 Розміщення на власному сайті
 
 1. Потрібен **HTTPS** (для перевірки — `http://localhost`).
@@ -79,12 +93,12 @@
 | `manifest.json` | Маніфест PWA: назва, іконки, ярлики «Екстрена картка», «Писати», «Так / Ні» |
 | `icon-192.png`, `icon-512.png` | Іконки |
 | `lex/`, `tools/build-lexicon.py` | Частотні списки слів для підказок і скрипт, що їх готує |
-| `tests/` | Автотести Playwright (`test_v1.py` … `test_v7.py`, `test_v10.py`, `test_v11.py`, `test_v12.py`, `test_v13.py`, `test_sw.py`) |
+| `tests/` | Автотести Playwright (`test_v1.py` … `test_v7.py`, `test_v10.py`, `test_v11.py`, `test_v12.py`, `test_v13.py`, `test_v14.py`, `test_sw.py`) |
 | `LICENSE` | Ліцензія MIT |
 
 ### Оновлення версії
 
-1. `sw.js`: `const V = 'myvoice-v13'` → `'myvoice-v14'`.
+1. `sw.js`: `const V = 'myvoice-v14'` → `'myvoice-v15'`.
 2. `index.html`: `APP_VERSION` на те саме число.
 3. Завантажте файли — застосунок оновиться під час наступного відкриття з інтернетом.
 
@@ -136,6 +150,10 @@
 
 > ⚠️ «Мой голос», «Говорим вместе» и «Снова слова» живут на одном адресе `bispalov.github.io`: очистка данных сайта удаляет данные всех трёх. Сначала сохраните резервную копию в каждом.
 
+### 🌐 Браузеры
+
+Приложение сделано для **Chrome** — там работает всё. 🔊 Озвучка работает почти везде (голос — из телефона; если голоса для языка нет, его можно установить в «Синтез речи» / «Преобразование текста в речь»). 🎤 Распознавание речи: Chrome — ✔, Samsung Internet и Safari на iPhone — с ограничениями, Firefox, Opera, Edge на телефоне — ✖ (не работает только 🎤). Данные в каждом браузере свои — перенос через копию данных. При первом открытии не в Chrome приложение само скажет, что не будет работать; возможности текущего браузера — в ⚙️ → «ℹ️ О приложении».
+
 ### Публикация и размещение
 
 Как у «Говорим вместе»: пути относительные; на GitHub Pages — репозиторий `MyVoice`, ветка `main`, папка `/ (root)`; на своём сайте — HTTPS, все файлы в одну папку, в `manifest.json` поменять только `"id"` (до первой установки). Обновление: `V` в `sw.js` и `APP_VERSION` в `index.html`.
@@ -169,6 +187,17 @@
 ### Getting started
 
 Open https://bispalov.github.io/MyVoice/ in Chrome on Android → ⋮ → **Install app**. Touch and hold the app icon for shortcuts: Emergency card, Type, Yes / No. My Voice, Let’s talk together and Words Again share the address `bispalov.github.io`: clearing site data removes the data of all three — save a backup in each first.
+
+### 🌐 Browsers
+
+The app is made for **Chrome** — everything works there.
+
+| | Chrome (Android, PC) | Samsung Internet | Safari (iPhone) | Firefox, Opera, Edge on the phone |
+|---|---|---|---|---|
+| 🔊 Speech output (the app speaks for you) | ✔ | ✔ | ✔ | ✔ |
+| 🎤 Speech recognition (what loved ones say) | ✔ (on Android usually needs the internet) | with limits | with limits | ✖ |
+
+The voice comes from the phone (install one in “Text-to-speech output” if your language has none). Data is separate in each browser — move it with a data backup. On the first visit outside Chrome the app says once what will not work; ⚙️ → “ℹ️ About” shows what the current browser can do.
 
 ### Hosting on your own site
 
